@@ -5,7 +5,7 @@ PyBase is a DataBase Manager for JSON, YAML and SQLite.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
-> **PyBase is actually on Alpha phase, may contain bugs.**
+> **PyBase is actually on Beta phase, may contain bugs.**
 
 ------
 
