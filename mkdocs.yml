@@ -6,7 +6,6 @@ site_description: >-
   It's focused on the ease and effectiveness for the administration of databases.
 site_author: NTBBloodbath
 copyright: Copyright © 2020 NTBBloodbath. PyBase is under MIT License.
-docs_dir: home
 use_directory_urls: true
 
 #- Repository config -------------------------------------------------------------
