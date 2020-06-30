@@ -1,15 +1,17 @@
-# PyBase - DB Manager
-![PyBase Logo](./res/pybase-logo.png)
+# Home
+
+![PyBase Logo](/images/pybase-logo-no_bg.png)
 
 PyBase is a DataBase Manager for JSON, YAML and SQLite.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
-> **PyBase is actually on Alpha phase, may contain bugs.**
+> **PyBase is actually on Beta phase, may contain bugs.**
 
 ------
 
 ## Why PyBase?
+
 If you want to store static data (JSON, YAML) or store a database in SQLite,
 the best thing would be to use an administrator that simplifies your tasks and
 helps you with a good organization and efficiently.
@@ -21,15 +23,12 @@ just one method, and simplifies the task of manipulating their data!
 
 ------
 
-# Quick start
-## Installation
-PyBase requires Python 3.x and can be installed through `pip` with the following command.
-```sh
-pip install pybase_db
-```
+## Quick start
 
-## Usage example
-This is a brief example of the methods that PyBase currently has.
+### Usage example
+
+This is a brief example of some methods that PyBase currently has.
+
 ```py
 # Lets import PyBase Class from PyBase Package
 from pybase_db import PyBase
@@ -40,23 +39,19 @@ db = PyBase("example", "JSON")  #=> ./example.json
 # Lets define and add some content to our database.
 pybase_info = {"pybase": "awesomeness", "version": "0.1.0"}
 # Lets insert the defined dict inside our database.
-db.insert(pybase_info)  #=> {'pybase': 'awesomeness', 'version': '0.1.0'}
+db.insert(pybase_info)  #=> {'pybase': 'awesomeness', 'version': '0.0.1'}
 print(db.read())
-# Lets delete an object inside our database cuz it's useless.
-db.delete('pybase')  #=> {'version': '0.1.0'}
-print(db.read())
-# Lets fetch an object inside our database and display its type.
-# It's useful to debug and manipulate the data dynamically.
-print(db.fetch('version'))
 ```
 
-## Documentation
+### Documentation
+
 You can see the PyBase documentation through the `help()` function of the REPL
-and through the [official documentation site](https://ntbbloodbath.github.io/PyBase).
+and through the [official documentation site](https://ntbbloodbath.github.io/PyBase/).
 
 ------
 
 ## License
+
 **PyBase is distributed under MIT License.**
 
 ## Contributing
