@@ -68,10 +68,6 @@ class PyBase:
             If the given path wasn't found.
         """
 
-        # banner code starts here
-        os.system("pyfiglet -w $(tput cols) -j center PyBase v0.0.1 | lolcat")
-
-        # main code starts here
         self.__path = db_path  # private path variable to clean code.
 
         if type(database) != str:
