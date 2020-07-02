@@ -89,15 +89,15 @@ class PyBase:
                                   encoding='utf-8') as json_file:
                             json.dump({}, json_file)
                     except Exception as err:
-                        print(f'[ERROR]: {err.__class__}')
+                        print(f'[ERROR]: {err}')
             elif db_type.lower() == 'yaml':
                 if path.exists(self.__DB) == False:
                     try:
                         with open(self.__DB, mode='w+',
                                   encoding='utf-8') as yaml_file:
-                            yaml.dump('---\n', yaml_file)
+                            yaml.dump("---", yaml_file)
                     except Exception as err:
-                        print(f'[ERROR]: {err.__class__}')
+                        print(f'[ERROR]: {err}')
             elif db_type.lower() == 'sqlite':
                 self.__sql_conn = sqlite3.connect(self.__DB)
             else:
@@ -146,7 +146,7 @@ class PyBase:
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                 except KeyError as err:
-                    print(f'[ERROR]: {err.__class__}')
+                    print(f'[ERROR]: {err}')
 
     def exists(self, database: str, db_path: str = pathlib.Path().absolute()):
         """
@@ -253,12 +253,12 @@ class PyBase:
                                         sub)[4] in data[key].keys():
                                     return type(data[key][list(sub)[4]])
                             except KeyError as err:
-                                print(f'[ERROR]: {err.__class__}')
+                                print(f'[ERROR]: {err}')
                         else:
                             try:
                                 return type(data[key])
                             except KeyError as e:
-                                print(f'[ERROR]: {err.__class__}')
+                                print(f'[ERROR]: {err}')
             elif self.__EXTENSION == '.yaml':
                 with open(self.__DB, mode='r', encoding='utf-8') as yaml_file:
                     data = yaml.load(yaml_file, Loader=yaml.FullLoader)
@@ -282,12 +282,12 @@ class PyBase:
                                         sub)[4] in data[key].keys():
                                     return type(data[key][list(sub)[4]])
                             except KeyError as err:
-                                print(f'[ERROR]: {err.__class__}')
+                                print(f'[ERROR]: {err}')
                         else:
                             try:
                                 return type(data[key])
                             except KeyError as e:
-                                print(f'[ERROR]: {err.__class__}')
+                                print(f'[ERROR]: {err}')
 
     def insert(self, content: dict):
         """
@@ -318,7 +318,7 @@ class PyBase:
                               encoding='utf-8') as json_file:
                         json.dump(data, json_file, indent=4, sort_keys=True)
                 except Exception as err:
-                    print(f'[ERROR]: {err.__class__}')
+                    print(f'[ERROR]: {err}')
             elif self.__EXTENSION == '.yaml':
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
@@ -328,7 +328,7 @@ class PyBase:
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                 except Exception as err:
-                    print(f'[ERROR]: {err.__class__}')
+                    print(f'[ERROR]: {err}')
 
     def read(self):
         """
@@ -354,11 +354,11 @@ class PyBase:
                     data = json.load(json_file)
                     return data
             except Exception as err:
-                print(f'[ERROR]: {err.__class__}')
+                print(f'[ERROR]: {err}')
         elif self.__EXTENSION == '.yaml':
             try:
                 with open(self.__DB, mode='r+', encoding='utf-8') as yaml_file:
                     data = yaml.load(yaml_file, Loader=yaml.FullLoader)
                     return data
             except Exception as err:
-                print(f'[ERROR]: {err.__class__}')
+                print(f'[ERROR]: {err}')
