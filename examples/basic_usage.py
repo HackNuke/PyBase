@@ -2,7 +2,7 @@
 # Usage example file (for v0.1.0).
 
 # Lets import PyBase Class from PyBase Package
-from pybase_db import PyBase
+from pybase import PyBase
 
 # Lets define our database name and format (with default db_path).
 # db_type isn't case sensitive. You can use JSON and json and it'll be valid.
