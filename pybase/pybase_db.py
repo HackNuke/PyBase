@@ -322,7 +322,7 @@ class PyBase:
             elif self.__EXTENSION == '.yaml':
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
-                        data = yaml.load(yaml_file)
+                        data = yaml.load(yaml_file, Loader=yaml.FullLoader)
                         data.update(content)
                     with open(self.__DB, mode='w',
                               encoding='utf-8') as yaml_file:
