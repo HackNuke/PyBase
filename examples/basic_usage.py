@@ -11,10 +11,12 @@ db = PyBase("example", "JSON")  #=> ./example.json
 pybase_info = {"pybase": "awesomeness", "version": "0.1.0"}
 # Lets insert the defined dict inside our database.
 db.insert(pybase_info)  #=> {'pybase': 'awesomeness', 'version': '0.1.0'}
-print(db.read())
+print(db.get())
 # Lets delete an object inside our database cuz it's useless.
 db.delete('pybase')  #=> {'version': '0.1.0'}
-print(db.read())
+print(db.get())
 # Lets fetch an object inside our database and display its type.
 # It's useful to debug and manipulate the data dynamically.
 print(db.fetch('version'))
+#Gets the corresponding value according to the specified key
+print(db.get("version")) #=> '0.1.0'
