@@ -1,4 +1,4 @@
-#       NTBBloodbath | PyBase v0.3.0       #
+#       NTBBloodbath | PyBase v0.3.1       #
 ############################################
 # PyBase is distributed under MIT License. #
 

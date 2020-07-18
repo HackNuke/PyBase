@@ -1,4 +1,4 @@
-#       NTBBloodbath | PyBase v0.3.0       #
+#       NTBBloodbath | PyBase v0.3.1       #
 ############################################
 # PyBase is distributed under MIT License. #
 
@@ -174,9 +174,9 @@ class PySQL:
                 {
                     "table": {
                         "name": "example",
-                        "elements": {
+                        "columns": {
                             "test": {
-                                "type": "INTEGER",
+                                "type": "integer",
                                 "value": 12345 # or [12345, 67890]
                             }
                         }
@@ -188,16 +188,16 @@ class PySQL:
         ValueError
             If objects isn't a dict or is empty (equal to zero).
             If table name isn't a String.
-            If elements key is empty (is equal to Zero).
-            If element key type isn't text or integer.
+            If columns key is empty (is equal to Zero).
+            If columns key type isn't text or integer.
         KeyError
             If objects doesn't have a key called name or elements.
-            If elements keys doesn't have type/value.
+            If columns keys doesn't have type/value.
         """
 
-        each_element = []   # Collect each element name and save them inside a list.
-        each_type = []      # Collect each element type and save them inside a list.
-        each_value = []     # Collect each element value and save them inside a list.
+        each_column = []   # Collect each column name and save them inside a list.
+        each_type = []     # Collect each column type and save them inside a list.
+        each_value = []    # Collect each column value and save them inside a list.
 
         # If objects isn't a dict or is equal to zero
         if type(objects) != dict or len(objects) == 0:
@@ -207,36 +207,36 @@ class PySQL:
         # If table name value isn't a String.
         elif isinstance(objects["table"]["name"], str) == False:
             raise ValueError('table name must be a String.')
-        # If table doesn't have a elements key.
-        elif "elements" in objects["table"] == False:
-            raise KeyError('object dict must have a elements key inside the table key.')
+        # If table doesn't have a columns key.
+        elif "columns" in objects["table"] == False:
+            raise KeyError('object dict must have a columns key inside the table key.')
         else:
-            if len(objects["table"]["elements"]) == 0:
-                raise ValueError('elements key cannot be empty.')
+            if len(objects["table"]["columns"]) == 0:
+                raise ValueError('columns key cannot be empty.')
             else:
-                elements = objects["table"]["elements"]
-                # Search in all the elements keys for type and value
-                for element in elements:
-                    # If type isn't a key inside the element, raise KeyError
-                    if "type" in elements[element] == False:
-                        raise KeyError(f'{element} must have a type key')
+                columns = objects["table"]["columns"]
+                # Search in all the columns keys for type and value
+                for column in columns:
+                    # If type isn't a key inside the column, raise KeyError
+                    if "type" in columns[column] == False:
+                        raise KeyError(f'{column} must have a type key')
                     # If type value isn't integer or text, raise ValueError
-                    elif not elements[element]["type"] in ["text", "integer"]:
-                        raise ValueError(f'{element} type must be integer or text')
+                    elif not columns[column]["type"] in ["text", "integer"]:
+                        raise ValueError(f'{column} type must be integer or text')
                     # If value isn't a key inside the element, raise KeyError
-                    elif "value" in elements[element] == False:
-                        raise KeyError(f'{element} must have a value key')
+                    elif "value" in columns[columns] == False:
+                        raise KeyError(f'{column} must have a value key')
                     else:
                         # If all is good, then insert each element with
                         # their types and values inside different lists.
-                        each_element.append(element)
-                        each_type.append(elements[element]["type"])
-                        each_value.append(elements[element]["value"])
+                        each_column.append(column)
+                        each_type.append(columns[column]["type"])
+                        each_value.append(columns[column]["value"])
                 # Initializing the table creation.
                 try:
                     create_table = f"""CREATE TABLE IF NOT EXISTS {objects["table"]["name"]} (\n"""
-                    for e in range(len(each_element)):            
-                        create_table += f"""    {'{} {},'.format(each_element[e], each_type[e]) if (e + 1) != len(each_element) else '{} {}'.format(each_element[e], each_type[e])}\n"""                    
+                    for c in range(len(each_column)):            
+                        create_table += f"""    {'{} {},'.format(each_column[c], each_type[c]) if (c + 1) != len(each_column) else '{} {}'.format(each_column[e], each_type[e])}\n"""                    
                     create_table += """);"""
 
                     if self.__debug == True:
@@ -253,30 +253,30 @@ class PySQL:
                 # Initializing the insertion
                 try:
                     pre_insert_data = f"""INSERT INTO {objects["table"]["name"]} ("""
-                    for e in range(len(each_element)):
-                        pre_insert_data += f"""{'{}, '.format(each_element[e]) if (e + 1) != len(each_element) else '{}'.format(each_element[e])}"""
+                    for c in range(len(each_column)):
+                        pre_insert_data += f"""{'{}, '.format(each_column[c]) if (c + 1) != len(each_column) else '{}'.format(each_column[c])}"""
                     pre_insert_data += """) VALUES ("""
-                    for e in range(len(each_element)):
-                        pre_insert_data += f"""{'?, ' if (e + 1) != len(each_element) else '?'}"""
+                    for c in range(len(each_column)):
+                        pre_insert_data += f"""{'?, ' if (c + 1) != len(each_column) else '?'}"""
                     pre_insert_data += """)"""
 
                     insert_data = []
-                    for e in range(len(each_element)):
-                        insert_data.append(f"{'{}'.format(each_value[e]) if isinstance(each_value[e], list) == False else '{}'.format(each_value[e][0])}")
+                    for c in range(len(each_column)):
+                        insert_data.append(f"{'{}'.format(each_value[c]) if isinstance(each_value[c], list) == False else '{}'.format(each_value[c][0])}")
 
                     self.__cursor.execute(pre_insert_data, insert_data)
                     self.__conn.commit()
 
                     # Insert the rest of the array data inside the column
                     pre_insert_data = f"""INSERT INTO {objects["table"]["name"]} ("""
-                    for e in range(len(each_element)):
-                        if isinstance(each_value[e], list):
-                            pre_insert_data += f"""{'{}'.format(each_element[e])}"""
+                    for c in range(len(each_column)):
+                        if isinstance(each_value[c], list):
+                            pre_insert_data += f"""{'{}'.format(each_element[c])}"""
                     pre_insert_data += """) VALUES """
-                    for e in range(len(each_element)):
-                        if isinstance(each_value[e], list):
+                    for c in range(len(each_column)):
+                        if isinstance(each_value[c], list):
                             arr_length = 1
-                            while arr_length != (len(each_value[e]) - 1):
+                            while arr_length != (len(each_value[c]) - 1):
                                 pre_insert_data += f"""{'(?), '}"""
                                 arr_length += 1
                             else:
@@ -284,11 +284,11 @@ class PySQL:
                     pre_insert_data += """)"""
 
                     insert_data = []
-                    for e in range(len(each_element)):
-                        if isinstance(each_value[e], list):
+                    for c in range(len(each_column)):
+                        if isinstance(each_value[c], list):
                             arr_length = 1
-                            while arr_length <= (len(each_value[e]) - 1):
-                                insert_data.append(f"{'{}'.format(each_value[e][0 + arr_length])}")
+                            while arr_length <= (len(each_value[c]) - 1):
+                                insert_data.append(f"{'{}'.format(each_value[c][0 + arr_length])}")
                                 arr_length += 1
 
                     if self.__debug == True:

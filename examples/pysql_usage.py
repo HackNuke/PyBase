@@ -1,5 +1,5 @@
-# NTBBloodbath | PyBase v0.3.0
-# Usage example file (for v0.3.0).
+# NTBBloodbath | PyBase v0.3.1
+# Usage example file (for v0.3.1).
 
 # Lets import PySQL Class from PyBase Package
 from pysql import PySQL
@@ -13,7 +13,7 @@ db = PySQL(database = "prueba", debug = True)
 db.create(objects = {
     "table": {
         "name": "users",
-        "elements": {
+        "columns": {
             "username": {
                 "type": "text",
                 "value": "bloodbath"
