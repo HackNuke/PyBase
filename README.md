@@ -1,4 +1,10 @@
 # PyBase - DB Manager
+[![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
+![Issues](https://img.shields.io/github/issues/NTBBloodbath/PyBase)
+![Forks](https://img.shields.io/github/forks/NTBBloodbath/PyBase)
+![License](https://img.shields.io/github/license/NTBBloodbath/PyBase)
+
 ![PyBase Logo](./res/pybase-logo.png)
 
 PyBase is a DataBase Manager for JSON, YAML, Bytes and SQLite.
