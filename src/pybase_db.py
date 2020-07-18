@@ -1,11 +1,10 @@
-#       NTBBloodbath | PyBase v0.2.0       #
+#       NTBBloodbath | PyBase v0.3.0       #
 ############################################
 # PyBase is distributed under MIT License. #
 
 # dependencies (packages/modules)
 import yaml
 import json
-import sqlite3
 import pickle
 import pathlib
 import os
@@ -36,7 +35,6 @@ class PyBase:
     TODO:
         Add SQLite support.
         Add more useful methods.
-        Improve existing methods & banner.
     """
     def __init__(self,
                  database: str,
@@ -53,7 +51,8 @@ class PyBase:
             The name of the database without extension.
         db_type : str
             The database type.
-            Available types: yaml, json, sqlite, bytes
+            Available types: yaml, json, bytes
+            Note: To use SQLite3, use the PySQL module.
         db_path : str
             The path where the database is located (default is current working directory).
             Example: /home/bloodbath/Desktop/PyBase
@@ -63,7 +62,7 @@ class PyBase:
         TypeError
             If database or db_type isn't a String.
         ValueError
-            If the given db_type isn't a valid type (JSON, YAML, SQLite).
+            If the given db_type isn't a valid type (JSON, YAML, Bytes).
         FileNotFoundError
             If the given path wasn't found.
         """
@@ -79,8 +78,7 @@ class PyBase:
                 f'The path ({self.__path}) wasn\'t found. Please check that the path exists.'
             )
         elif type(db_type) == str:
-            self.__EXTENSION = '.' + db_type.lower(
-            ) if db_type != 'SQLite' else '.db'
+            self.__EXTENSION = '.' + db_type.lower()
             self.__DB = (f'{self.__path}/{database}{self.__EXTENSION}')
             if db_type.lower() == 'json':
                 if os.path.exists(self.__DB) == False:
@@ -105,11 +103,8 @@ class PyBase:
                             pickle.dump({}, bytes_file)
                     except Exception as err:
                         print(f"[ERROR] - {err}")
-            elif db_type.lower() == 'sqlite':
-                #self.__sql_conn = sqlite3.connect(self.__DB)
-                print("[INFO] - SQLite not support, coming soon...")
             else:
-                raise ValueError('db_type must be JSON, YAML or SQLite.')
+                raise ValueError('db_type must be JSON, YAML or Bytes.')
 
     def delete(self, obj):
         """

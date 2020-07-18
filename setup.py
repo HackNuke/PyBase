@@ -11,12 +11,12 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='pybase_db',
-    version='0.2.0',
+    version='0.3.0',
     description=
-    'PyBase is a database manager for YAML, JSON and SQLite. Very poweful, simple and effective.',
+    'PyBase is a database manager for YAML, JSON, Bytes and SQLite. Very poweful, simple and effective.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='http://github.com/NTBBloodbath/PyBase',
+    url='http://ntbbloodbath.github.io/PyBase/',
     author='NTBBloodbath',
     author_email='bloodbathalchemist@protonmail.com',
     license='MIT',

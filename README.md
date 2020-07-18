@@ -1,7 +1,7 @@
 # PyBase - DB Manager
 ![PyBase Logo](./res/pybase-logo.png)
 
-PyBase is a DataBase Manager for JSON, YAML and SQLite.
+PyBase is a DataBase Manager for JSON, YAML, Bytes and SQLite.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
@@ -17,7 +17,10 @@ helps you with a good organization and efficiently.
 PyBase does exactly that, allows you to create such databases with
 just one method, and simplifies the task of manipulating their data!
 
-> **PyBase doesn't yet support SQLite, it will be added soon.**
+------
+
+## Contribuitors
+- [Danny2105](https://github.com/Danny2105)
 
 ------
 
@@ -39,14 +42,14 @@ from pybase import PyBase
 db = PyBase("example", "JSON")  #=> ./example.json
 
 # Lets define and add some content to our database.
-pybase_info = {"pybase": "awesomeness", "version": "0.2.0"}
+pybase_info = {"pybase": "awesomeness", "version": "0.3.0"}
 
 # Lets insert the defined dict inside our database.
-db.insert(pybase_info)  #=> {'pybase': 'awesomeness', 'version': '0.2.0'}
+db.insert(pybase_info)  #=> {'pybase': 'awesomeness', 'version': '0.3.0'}
 print(db.get())
 
 # Lets delete an object inside our database cuz it's useless.
-db.delete('pybase')  #=> {'version': '0.2.0'}
+db.delete('pybase')  #=> {'version': '0.3.0'}
 print(db.get())
 
 # Lets fetch an object inside our database and display its type.
@@ -54,17 +57,16 @@ print(db.get())
 print(db.fetch('version'))
 
 #Gets the corresponding value according to the specified key
-print(db.get("version")) #=> '0.2.0'
+print(db.get("version")) #=> '0.3.0'
 ```
+
+> **To see SQLite3 usage example, click [here](./examples/pysql_usage.py)**
 
 ## Documentation
 You can see the PyBase documentation through the `help()` function of the REPL
 and through the [official documentation site](https://ntbbloodbath.github.io/PyBase).
 
 ------
-
-## Contribuitors
-- [Danny2105](https://github.com/Danny2105)
 
 ## License
 **PyBase is distributed under MIT License.**
