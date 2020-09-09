@@ -415,7 +415,7 @@ class PyBase:
                     with open(self.__DB, mode="r+", encoding="utf-8") as json_file:
                         data = json.load(json_file) or {}
                         self.__close_file_delete(json_file)
-                        if key in data: return data[key]
+                        if self.__util_split(key, data): return self.__util_split(key, data)
                         else:
                             raise KeyError(f"\"{key}\" Does not exist in the file")
             elif self.__EXTENSION == ".yaml":
@@ -428,7 +428,7 @@ class PyBase:
                     with open(self.__DB, mode='r+', encoding='utf-8') as yaml_file:
                         data = yaml.load(yaml_file, Loader=yaml.FullLoader) or {}
                         self.__close_file_delete(yaml_file)
-                        if key in data: return data[key]
+                        if self.__util_split(key, data): return self.__util_split(key, data)
                         else:
                             raise KeyError(f"\"{key}\" Does not exist in the file")
             elif self.__EXTENSION == ".bytes":
@@ -441,7 +441,7 @@ class PyBase:
                     with open(self.__DB, mode='rb') as bytes_file:
                         data = pickle.load(bytes_file) or {}
                         self.__close_file_delete(bytes_file)
-                        if key in data: return data[key]
+                        if self.__util_split(key, data): return self.__util_split(key, data)
                         else:
                             raise KeyError(f"\"{key}\" Does not exist in the file")
         except Exception as err:
@@ -467,3 +467,33 @@ class PyBase:
                 del (file)
         except Exception as err:
             print(f"[ERROR] - {err}")
+
+    def __util_split(self, key: str, data: dict):
+        """
+        Method only for the class, split dict from key specific
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The key of the dictionary
+        data : dict
+            The content.
+
+        Raises
+        ------
+        TypeError
+            key is not a str or data is not a dict
+
+        """
+        if type(key) != str:
+            raise TypeError(f"the type of {key} is invalid.")
+        elif type(data) != dict:
+            raise TypeError(f'data "{data}" must be a dictionary.')
+
+        args = key.split(".")
+        dataObject = data
+        for keys in args:
+            if not keys in dataObject.keys(): return False
+            if keys == args[len(args) - 1]: return dataObject[keys]
+            else: dataObject = dataObject[keys]

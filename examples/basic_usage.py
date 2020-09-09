@@ -2,7 +2,7 @@
 # Usage example file (for v0.3.0).
 
 # Lets import PyBase Class from PyBase Package
-from pybase import PyBase
+from src.pybase_db import PyBase
 
 # Lets define our database name and format (with default db_path).
 # db_type isn't case sensitive. You can use JSON and json and it'll be valid.
@@ -23,5 +23,21 @@ print(db.get())
 # It's useful to debug and manipulate the data dynamically.
 print(db.fetch('version'))
 
-#Gets the corresponding value according to the specified key
+# Gets the corresponding value according to the specified key
 print(db.get("version")) #=> '0.3.0'
+
+# New data of the new update
+pybase_update = {"pybase": {"newVersion": {"version": "0.3.1" } } }
+db.insert(pybase_update)
+
+# Get all data from db
+print(db.get()) # => {'pybase': {'newVersion': {'version': '0.3.1'}}, 'version': '0.3.0'}
+
+# Get the values ​​using its key
+print(db.get("pybase"))# => {'newVersion': {'version': '0.3.1'}}
+
+# Get a value of a key separated by a period (.)
+print(db.get("pybase.newVersion")) # => {'version': '0.3.1'}
+
+# Several
+print(db.get("pybase.newVersion.version")) # => 0.3.1
