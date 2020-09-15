@@ -48,7 +48,8 @@ db.delete(table = "users", objects = {
 #
 # Lets get the value "Ruby" from the "languages" column in "users" table.
 getData = db.get(table = "users", objects = {
-    "column": "languages"
+    "column": "languages",
+    "value": "Ruby"
 })
 # 
 # Lets delete the entire table.
