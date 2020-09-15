@@ -1,4 +1,4 @@
-# NTBBloodbath | PyBase v0.3.1
+# NTBBloodbath | PyBase v0.4.0
 
 # Import YAML, JSON & Bytes Module
 from .pybase_db import PyBase

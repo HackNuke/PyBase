@@ -1,14 +1,18 @@
-#       NTBBloodbath | PyBase v0.3.1       #
+#       NTBBloodbath | PyBase v0.4.0       #
 ############################################
 # PyBase is distributed under MIT License. #
 
 # dependencies (packages/modules)
+import os
 import yaml
 import json
 import pickle
 import pathlib
-import os
+from rich.console import Console
+from rich.traceback import install
+install() # Use Rich traceback handler as the default error handler
 
+console = Console()
 
 class PyBase:
     """
@@ -33,7 +37,6 @@ class PyBase:
         Read the database file established in PyBase init to to access its objects.
             
     TODO:
-        Add SQLite support.
         Add more useful methods.
     """
     def __init__(self,
@@ -87,7 +90,7 @@ class PyBase:
                                   encoding='utf-8') as json_file:
                             json.dump({}, json_file)
                     except Exception as err:
-                        print(f'[ERROR]: {err}')
+                        console.print_exception()
             elif db_type.lower() == 'yaml':
                 if os.path.exists(self.__DB) == False:
                     try:
@@ -95,14 +98,14 @@ class PyBase:
                                   encoding='utf-8') as yaml_file:
                             yaml.dump({}, yaml_file)
                     except Exception as err:
-                        print(f'[ERROR]: {err}')
+                        console.print_exception()
             elif db_type.lower() == "bytes":
                 if not os.path.exists(self.__DB):
                     try:
                         with open(self.__DB, mode="wb") as bytes_file:
                             pickle.dump({}, bytes_file)
                     except Exception as err:
-                        print(f"[ERROR] - {err}")
+                        console.print_exception()
             else:
                 raise ValueError('db_type must be JSON, YAML or Bytes.')
 
@@ -139,7 +142,7 @@ class PyBase:
                         json.dump(data, json_file, indent=4,
                                   sort_keys=True)  # Save
                 except KeyError as err:
-                    print(f'[ERROR]: {err.__class_}')
+                    console.print_exception()
             elif self.__EXTENSION == '.yaml':
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
@@ -149,7 +152,7 @@ class PyBase:
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                 except KeyError as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
             elif self.__EXTENSION == '.bytes':
                 try:
                     with open(self.__DB, mode="rb") as bytes_file:
@@ -158,7 +161,7 @@ class PyBase:
                     with open(self.__DB, mode="wb") as bytes_file:
                         pickle.dump(data, bytes_file)
                 except KeyError as err:
-                    print(f"[ERROR] - {err}")
+                    console.print_exception()
 
     def exists(self, database: str, db_path: str = pathlib.Path().absolute()):
         """
@@ -265,12 +268,12 @@ class PyBase:
                                         sub)[4] in data[key].keys():
                                     return type(data[key][list(sub)[4]])
                             except KeyError as err:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
                         else:
                             try:
                                 return type(data[key])
                             except KeyError as e:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
             elif self.__EXTENSION == '.yaml':
                 with open(self.__DB, mode='r', encoding='utf-8') as yaml_file:
                     data = yaml.load(yaml_file, Loader=yaml.FullLoader)
@@ -294,12 +297,12 @@ class PyBase:
                                         sub)[4] in data[key].keys():
                                     return type(data[key][list(sub)[4]])
                             except KeyError as err:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
                         else:
                             try:
                                 return type(data[key])
                             except KeyError as e:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
             elif self.__EXTENSION == '.bytes':
                 with open(self.__DB, mode='rb') as bytes_file:
                     data = pickle.load(bytes_file)
@@ -323,12 +326,12 @@ class PyBase:
                                         sub)[4] in data[key].keys():
                                     return type(data[key][list(sub)[4]])
                             except KeyError as err:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
                         else:
                             try:
                                 return type(data[key])
                             except KeyError as err:
-                                print(f'[ERROR]: {err}')
+                                console.print_exception()
             
     def insert(self, content: dict):
         """
@@ -359,7 +362,7 @@ class PyBase:
                               encoding='utf-8') as json_file:
                         json.dump(data, json_file, indent=4, sort_keys=True)
                 except Exception as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
             elif self.__EXTENSION == '.yaml':
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
@@ -369,7 +372,7 @@ class PyBase:
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                 except Exception as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
 
             elif self.__EXTENSION == '.bytes':
                 try:
@@ -379,7 +382,7 @@ class PyBase:
                     with open(self.__DB, mode='wb') as bytes_file:
                         pickle.dump(data, bytes_file)
                 except Exception as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
 
     def get(self, key: str = None):
 
@@ -445,7 +448,7 @@ class PyBase:
                         else:
                             raise KeyError(f"\"{key}\" Does not exist in the file")
         except Exception as err:
-            print(f'[ERROR]: {err}')
+            console.print_exception()
     
     
     def __close_file_delete(self, file):
@@ -466,7 +469,7 @@ class PyBase:
             if close_file is None:
                 del (file)
         except Exception as err:
-            print(f"[ERROR] - {err}")
+            console.print_exception()
 
     def __util_split(self, key: str, data: dict):
         """

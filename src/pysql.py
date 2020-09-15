@@ -1,12 +1,18 @@
-#       NTBBloodbath | PyBase v0.3.1       #
+#       NTBBloodbath | PyBase v0.4.0       #
 ############################################
 # PyBase is distributed under MIT License. #
 
 # dependencies (packages/modules)
-import sqlite3
-import pathlib
 import os
 import time
+import sqlite3
+import pathlib
+import itertools
+from rich.console import Console
+from rich.traceback import install
+install() # Use Rich traceback handler as the default error handler
+
+console = Console()
 
 class PySQL:
     """
@@ -72,22 +78,22 @@ class PySQL:
                     self.__conn = sqlite3.connect(':memory:')
                     self.__cursor = self.__conn.cursor()
                     if self.__debug == True:
-                        print('[DEBUG]: Using a database stored in memory.')
+                        console.log('[DEBUG]: Using a database stored in memory.')
                         time.sleep(1)
                 except Exception as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
             else:
                 self.__DB = (f'{self.__path}/{database}.db')
                 try:
                     self.__conn = sqlite3.connect(self.__DB)
                     self.__cursor = self.__conn.cursor()
                     if self.__debug == True:
-                        print(f'[DEBUG]: using a database stored in disk ({self.__DB}).')
+                        console.log(f'[DEBUG]: using a database stored in disk ({self.__DB}).')
                         time.sleep(1)
                 except Exception as err:
-                    print(f'[ERROR]: {err}')
+                    console.print_exception()
             if self.__debug == True:
-                print(f'[DEBUG]: Using SQLite3 version v{sqlite3.version}')
+                console.log(f'[DEBUG]: Using SQLite3 version v{sqlite3.version}')
                 time.sleep(1)
 
 
@@ -101,13 +107,13 @@ class PySQL:
         ----------
         table : str
             The table which will be deleted from the database.
-            Note: If the element parameter isn't None, the table will not be deleted, if not, the element inside it.
+            Note: If the value parameter isn't None, the table will not be deleted, if not, the element inside it.
         objects : dict, optional
-            The column and element to be deleted from the table.
+            The column and value to be deleted from the table.
             Example:
                 {
                     "column": "username",
-                    "element": "bloodbath"
+                    "value": "bloodbath"
                 }
 
         Raises
@@ -115,10 +121,10 @@ class PySQL:
         ValueError
             If table isn't a String or isn't declared or is equal to None.
         KeyError
-            If the given table isn't found.
-        ValueError
-            If the given table doesn't have the given element.
+            If objects doesn't have a value key.
         sqlite3.OperationalError
+            If the given table isn't found.
+            If the given table doesn't have the given value.
             If the given table doesn't have the given column.
         """
 
@@ -135,29 +141,35 @@ class PySQL:
             else:
                 self.__cursor.execute(f"""DROP TABLE {table}""")
                 if self.__debug == True:
-                    print(f"[DEBUG]: Deleting the table {table}...")
+                    time.sleep(0.5)
+                    console.log(f"[DEBUG]: Deleting the table {table}...")
                     time.sleep(1.5)
                 self.__conn.commit()
                 time.sleep(0.5)
-                print(f"[LOG]: The table {table} has been deleted.")
+                console.log(f"[LOG]: The table {table} has been deleted.")
         else:
-            # If a element is declared, then delete it from the table.
-            # Search the given element in the given column and if it doesn't exists, raise error
-            self.__cursor.execute(f"""SELECT {objects['column']} FROM {table} WHERE {objects['column']} = '{objects['element']}'""")
-            rows = self.__cursor.fetchall()
-            if len(rows) == 0:
-                raise ValueError("The given element doesn't exists in the given column.")
+            # If there's no value key in objects, then raise error.
+            if not "value" in objects:
+                raise KeyError(f"[ERROR]: objects must have a value key.")
             else:
-                try:
-                    self.__cursor.execute(f"""DELETE FROM {table} WHERE {objects['column']} = '{objects['element']}'""")
-                    if self.__debug == True:
-                        print(f"[DEBUG]: Deleting the element {objects['element']} from the column {objects['column']} in table {table}...")
-                        time.sleep(1)
-                    self.__conn.commit()
-                    time.sleep(0.5)
-                    print(f"[LOG]: The element {objects['element']} has been deleted from {objects['column']} in {table}.")
-                except sqlite3.OperationalError as err:
-                    print(f"[ERROR]: The given column doesn't exists.")
+                # If a element is declared, then delete it from the table.
+                # Search the given element in the given column and if it doesn't exists, raise error
+                self.__cursor.execute(f"""SELECT {objects['column']} FROM {table} WHERE {objects['column']} = '{objects['value']}'""")
+                rows = self.__cursor.fetchall()
+                if len(rows) == 0:
+                    raise ValueError("The given element doesn't exists in the given column.")
+                else:
+                    try:
+                        self.__cursor.execute(f"""DELETE FROM {table} WHERE {objects['column']} = '{objects['value']}'""")
+                        if self.__debug == True:
+                            time.sleep(0.5)
+                            console.log(f"[DEBUG]: Deleting the value {objects['value']} from the column {objects['column']} in table {table}...")
+                            time.sleep(1)
+                        self.__conn.commit()
+                        time.sleep(0.5)
+                        console.log(f"[LOG]: The element {objects['value']} has been deleted from {objects['column']} in {table}.")
+                    except sqlite3.OperationalError as err:
+                        console.print_exception()
 
 
     def create(self, objects: dict):
@@ -191,7 +203,7 @@ class PySQL:
             If columns key is empty (is equal to Zero).
             If columns key type isn't text or integer.
         KeyError
-            If objects doesn't have a key called name or elements.
+            If objects doesn't have a key called name or columns.
             If columns keys doesn't have type/value.
         """
 
@@ -224,7 +236,7 @@ class PySQL:
                     elif not columns[column]["type"] in ["text", "integer"]:
                         raise ValueError(f'{column} type must be integer or text')
                     # If value isn't a key inside the element, raise KeyError
-                    elif "value" in columns[columns] == False:
+                    elif "value" in columns[column] == False:
                         raise KeyError(f'{column} must have a value key')
                     else:
                         # If all is good, then insert each element with
@@ -232,76 +244,201 @@ class PySQL:
                         each_column.append(column)
                         each_type.append(columns[column]["type"])
                         each_value.append(columns[column]["value"])
-                # Initializing the table creation.
-                try:
-                    create_table = f"""CREATE TABLE IF NOT EXISTS {objects["table"]["name"]} (\n"""
-                    for c in range(len(each_column)):            
-                        create_table += f"""    {'{} {},'.format(each_column[c], each_type[c]) if (c + 1) != len(each_column) else '{} {}'.format(each_column[e], each_type[e])}\n"""                    
-                    create_table += """);"""
+                # Check if table doesn't exists.
+                self.__cursor.execute(f"""SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{objects['table']['name']}'""")
+                if not self.__cursor.fetchone()[0] == 1:
 
-                    if self.__debug == True:
-                        print(f"[DEBUG]: Creating table {objects['table']['name']}...")
+                    try:
+                        # Initializing the table creation.
+                        create_table = f"""CREATE TABLE IF NOT EXISTS {objects["table"]["name"]} (\n"""
+                        for c in range(len(each_column)):            
+                            create_table += f"""    {'{} {},'.format(each_column[c], each_type[c]) if (c + 1) != len(each_column) else '{} {}'.format(each_column[c], each_type[c])}\n"""
+                        create_table += """);"""
+
+                        if self.__debug:
+                            console.log(f"[DEBUG]: Creating table {objects['table']['name']}...")
+                            time.sleep(0.5)
+                            console.log(f"[DEBUG]:", create_table)
+                            time.sleep(1.5)
+                        self.__cursor.execute(create_table)
                         time.sleep(0.5)
-                        print(f"[DEBUG]: ", create_table)
-                        time.sleep(1.5)
-                    self.__cursor.execute(create_table)
-                    time.sleep(0.5)
-                    print(f"[LOG]: The table {objects['table']['name']} has been created successfully.")
-                except Exception as err:
-                    print(f"[ERROR]: {err}")
+                        console.log(f"[LOG]: The table {objects['table']['name']} has been created successfully.")
+                    except Exception as err:
+                        console.print_exception()
 
                 # Initializing the insertion
                 try:
-                    pre_insert_data = f"""INSERT INTO {objects["table"]["name"]} ("""
+                    insert_data = f"""INSERT INTO {objects['table']['name']} ("""
                     for c in range(len(each_column)):
-                        pre_insert_data += f"""{'{}, '.format(each_column[c]) if (c + 1) != len(each_column) else '{}'.format(each_column[c])}"""
-                    pre_insert_data += """) VALUES ("""
+                        insert_data += f"""{'{}, '.format(each_column[c]) if (c + 1) != len(each_column) else '{}'.format(each_column[c])}"""
+                    insert_data += """) SELECT """
                     for c in range(len(each_column)):
-                        pre_insert_data += f"""{'?, ' if (c + 1) != len(each_column) else '?'}"""
-                    pre_insert_data += """)"""
+                        insert_data += f"""'{"{}".format(each_value[c]) if isinstance(each_value[c], list) == False else "{}".format(each_value[c][0])}'""" + f"""{", " if (c + 1) != len(each_column) else " "}"""
+                    insert_data += f"""WHERE NOT EXISTS (SELECT 1 FROM {objects['table']['name']} WHERE """
+                    for c in range(len(each_column)):
+                        insert_data += f"""{each_column[c]} = '{"{}".format(each_value[c]) if isinstance(each_value[c], list) == False else "{}".format(each_value[c][0])}'"""
+                        insert_data += f"""{ " AND " if (c + 1) != len(each_column) else ''}"""
+                    insert_data += """);"""
 
-                    insert_data = []
-                    for c in range(len(each_column)):
-                        insert_data.append(f"{'{}'.format(each_value[c]) if isinstance(each_value[c], list) == False else '{}'.format(each_value[c][0])}")
-
-                    self.__cursor.execute(pre_insert_data, insert_data)
+                    self.__cursor.execute(insert_data)
                     self.__conn.commit()
+
+                    if self.__debug:
+                        if any(isinstance(value, list) for value in each_value):
+                            console.log(f"[DEBUG]: Inserting the data only with the first arrays value...")
+                            console.log("[DEBUG]:", insert_data)
+                        else:
+                            console.log(f"[DEBUG]: Inserting the data inside the table {objects['table']['name']}...")
+                            console.log("[DEBUG]:", insert_data)
 
                     # Insert the rest of the array data inside the column
-                    pre_insert_data = f"""INSERT INTO {objects["table"]["name"]} ("""
-                    for c in range(len(each_column)):
-                        if isinstance(each_value[c], list):
-                            pre_insert_data += f"""{'{}'.format(each_element[c])}"""
-                    pre_insert_data += """) VALUES """
-                    for c in range(len(each_column)):
-                        if isinstance(each_value[c], list):
-                            arr_length = 1
-                            while arr_length != (len(each_value[c]) - 1):
-                                pre_insert_data += f"""{'(?), '}"""
-                                arr_length += 1
-                            else:
-                                pre_insert_data += f"""{'(?'}"""
-                    pre_insert_data += """)"""
+                    self.columns = []
+                    self.all_values = []
+                    self.values = []
 
-                    insert_data = []
                     for c in range(len(each_column)):
                         if isinstance(each_value[c], list):
-                            arr_length = 1
-                            while arr_length <= (len(each_value[c]) - 1):
-                                insert_data.append(f"{'{}'.format(each_value[c][0 + arr_length])}")
-                                arr_length += 1
+                            self.columns.append(each_column[c])
+                            self.all_values.append(each_value[c])
+                    columns_length = 0
+                    all_values_length = 0
+                    values_length = 0
 
-                    if self.__debug == True:
-                        print(f"[DEBUG]: Inserting the data inside the table {objects['table']['name']} table...")        
-                        time.sleep(0.5)
-                        print(f"[DEBUG]: ", pre_insert_data)
-                        time.sleep(0.5)
-                        print(f"[DEBUG]: ", insert_data)
-                        time.sleep(1)
-                    
-                    self.__cursor.execute(pre_insert_data, insert_data)
+                    insert_data = ""
+                    while 0 <= all_values_length < len(self.all_values):
+                        for i, name in enumerate(self.all_values[all_values_length]):
+                            if 0 < i:
+                                if i == 1:
+                                    self.values.append([])
+                                    self.values[values_length].append(name)
+                                else:
+                                    self.values[values_length].append(name)
+                        values_length += 1
+                        all_values_length += 1
+
+                    self.values = list(zip(*self.values))
+
+                    row = 0
+                    values_length = 0
+                    while 0 <= values_length < len(self.columns) and 0 <= row <= (len(self.values) - 1):
+                        insert_data += f"""INSERT INTO {objects['table']['name']} ("""
+                        for c in range(len(self.columns)):
+                            insert_data += f"""{'{}, '.format(self.columns[c]) if (c + 1) != len(self.columns) else '{}'.format(self.columns[c])}"""
+                        insert_data += """) SELECT """
+                        for i in range(len(self.values[row])):
+                            insert_data += f"""'{"{}".format(self.values[row][i])}'""" + f"""{", " if (i + 1) != len(self.values[row]) else " "}"""
+                        console.log(self.values[row])
+                        insert_data += f"""WHERE NOT EXISTS (SELECT 1 FROM {objects['table']['name']} WHERE """
+                        for c, i in itertools.zip_longest(range(len(self.columns)), range(len(self.values[row])), fillvalue=None):
+                            insert_data += f"""{self.columns[c]} = '{"{}".format(self.values[row][i])}'"""
+                            insert_data += f"""{ " AND " if (c + 1) != len(self.columns) else ''}"""
+                        insert_data += """);\n\n"""
+                        row += 1
+                        values_length += 1
+
+                    self.__cursor.executescript(insert_data)
                     self.__conn.commit()
+
+                    if self.__debug:
+                        if any(isinstance(value, list) for value in each_value):
+                            console.log(f"[DEBUG]: Inserting the rest of the data arrays values inside the table {objects['table']['name']}...")        
+                            time.sleep(0.5)
+                            console.log(f"[DEBUG]:", insert_data)
+                            time.sleep(1)
+
                     time.sleep(0.5)
-                    print(f"[LOG]: The data has been inserted successfully inside the table {objects['table']['name']}.")
+                    console.log(f"[LOG]: The data has been inserted successfully inside the table {objects['table']['name']}.")
                 except Exception as err:
-                    print(f"[ERROR]: {err}")
+                    console.print_exception()
+
+    def get(self, table: str, objects: dict = None):
+        """
+        Get data from the database.
+
+        ...
+
+        Parameters
+        ----------
+        table : str
+            The table where the data will be searched.
+        objects : dict, optional
+            The column and value that will be searched.
+            Note: If the value is not specified, the entire column will be obtained.
+            Example: {
+                "column": "languages",
+                "value": "Python"
+            }
+
+        Raises
+        ------
+        ValueError
+            If table isn't a String.
+            If objects isn't a dict.
+        KeyError
+            If the given column doesn't have the given value.
+        sqlite3.OperationalError
+            If the given table doesn't have the given column.
+
+        Returns
+        -------
+        list
+            A list with tuples that returns all the found values.
+        """
+
+        if type(table) != str:
+            raise ValueError('table must be a String.')
+        elif isinstance(objects, dict) == False:
+            raise ValueError('objects must be a dict.')
+        else:
+            if not "column" in objects:
+                try:
+                    # Get all the table
+                    self.__cursor.execute(f"""SELECT * FROM {table}""")
+                    rows = self.__cursor.fetchall()
+                except sqlite3.OperationalError as err:
+                    console.print_exception()
+
+                if self.__debug:
+                    time.sleep(0.5)
+                    console.log(f"[DEBUG]: Getting the table {table}...")
+                    time.sleep(0.5)
+                    console.log(f"[DEBUG]: The table {table} was obtained successfully and saved in rows attribute.")
+                    time.sleep(0.5)
+                    console.log("[DEBUG]:", rows)
+
+                return rows
+            else:
+                if not "value" in objects:
+                    try:
+                        # Get all the column
+                        self.__cursor.execute(f"""SELECT {objects['column']} FROM {table}""")
+                        rows = self.__cursor.fetchall()
+                    except sqlite3.OperationalError as err:
+                        console.print_exception()
+
+                    if self.__debug:
+                        time.sleep(0.5)
+                        console.log(f"[DEBUG]: Getting the column {objects['column']} from {table} table...")
+                        time.sleep(0.5)
+                        console.log(f"[DEBUG]: The column {objects['column']} was obtained successfully and saved in rows attribute.") 
+                        time.sleep(0.5)
+                        console.log("[DEBUG]:", rows)
+
+                    return rows
+                else:
+                    try:
+                        # Get the value in the column
+                        self.__cursor.execute(f"""SELECT {objects['column']} FROM {table} WHERE {objects['column']} = '{objects['value']}'""")
+                        rows = self.__cursor.fetchone()[0]
+                    except sqlite3.OperationalError as err:
+                        console.print_exception()
+
+                    if self.__debug:
+                        time.sleep(0.5)
+                        console.log(f"[DEBUG]: Getting the value {objects['value']} from column {objects['column']} in {table} table...")
+                        time.sleep(0.5)
+                        console.log(f"[DEBUG]: The value {objects['value']} was obtained successfully and saved in rows attribute.")
+                        time.sleep(0.5)
+                        console.log("[DEBUG]:", rows)
+
+                    return rows
