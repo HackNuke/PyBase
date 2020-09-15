@@ -8,7 +8,7 @@
 # sqlite> SELECT * FROM users;
 
 # Lets import PySQL Class from PyBase Package
-from pysql import PySQL
+from src.pysql import PySQL
 
 # Lets define our database name (with default db_path).
 # We can activate Debugging by setting debug to True.
@@ -39,7 +39,7 @@ db.create(objects = {
         }
     }
 })
-
+#
 # Lets delete the value JavaScript from languages table in users table.
 db.delete(table = "users", objects = {
     "column": "languages",
