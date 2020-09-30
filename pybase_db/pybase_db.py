@@ -358,7 +358,7 @@ class PyBase:
                     with open(self.__DB, encoding='utf-8') as json_file:
                         data = json.load(json_file)
                         data.update(content)
-                    with open(self.__DB, mode='w',
+                    with open(self.__DB, mode='a',
                               encoding='utf-8') as json_file:
                         json.dump(data, json_file, indent=4, sort_keys=True)
                 except Exception as err:
@@ -368,7 +368,7 @@ class PyBase:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
                         data = yaml.load(yaml_file, Loader=yaml.FullLoader)
                         data.update(content)
-                    with open(self.__DB, mode='w',
+                    with open(self.__DB, mode='a',
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                 except Exception as err:
@@ -379,7 +379,7 @@ class PyBase:
                     with open(self.__DB, mode="rb") as bytes_file:
                         data = pickle.load(bytes_file) or {}
                         data.update(content)
-                    with open(self.__DB, mode='wb') as bytes_file:
+                    with open(self.__DB, mode='ab') as bytes_file:
                         pickle.dump(data, bytes_file)
                 except Exception as err:
                     console.print_exception()
