@@ -99,14 +99,20 @@ class PyBase:
             raise TypeError('database must be a String.')
         elif type(db_type) != str:
             raise TypeError('db_type must be a String.')
-        elif os.path.exists(db_path) is not True:
-            raise FileNotFoundError(
-                f'The path ({self.__path}) wasn\'t found. Please check that the path exists.'
-            )
         elif type(db_type) == str:
             self.__EXTENSION = '.' + db_type.lower()
             self.__DB = (f'{self.__path}/{database}{self.__EXTENSION}')
+            if os.path.exists(self.__path) is not True:
+                if self.__debug:
+                    console.log(
+                        "[DEBUG]: The established path doesn't exist, trying to create it ..."
+                    )
+                try:
+                    pathlib.Path(self.__path).mkdir(parents=True, exist_ok=True)
+                except Exception:
+                    console.print_exception()
             if self.__debug:
+                sleep(0.5)
                 console.log(
                     f"[DEBUG]: Searching if the database ({self.__DB}) exists ..."
                 )
