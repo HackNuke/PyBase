@@ -10,6 +10,7 @@ This is a detailed and complete changelog of the different versions of PyBase.
     - `exists` method has been removed because it was useless (PyBase Class).
     - `fetch` method has been changed to be simpler and more dev-friendly (PyBase Class)!
   - Another changes under the hood and bug fixes:
+    - Now the init doesn't raise errors when the specified path doesn't exists. Instead, it tries to create the path (PyBase Class).
     - Now `insert` method have a parameter called `mode`. Now when inserting data to an existing key the old data will not be overwritten (PyBase Class)!
     - The `debug` parameter has been added to the init, now you can see what happens behind the curtains (PyBase Class)!
     - The `stats` parameter has been added to the init, now you can see how much CPU and RAM is consuming PyBase (PyBase Class)!
@@ -19,7 +20,7 @@ This is a detailed and complete changelog of the different versions of PyBase.
 > 
 > 1. Since the documentation will change and isn't ready yet,
 > you can see the changes by comparing the usage example of
-> the [development](https://github.com/NTBBloodbath/PyBase/blob/development/examples/basic_usage.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
+> the [development](https://github.com/NTBBloodbath/PyBase/blob/development/examples/basic_usage_example.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
 > 
 > 2. Since version 0.5.0 is under development, it isn't ready
 > yet and therefore this changelog notes may change and there's
