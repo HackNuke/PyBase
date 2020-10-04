@@ -8,7 +8,7 @@
 # sqlite> SELECT * FROM users;
 
 # Lets import PySQL Class from PyBase Package
-from pybase_db.pysql import PySQL
+from pysql import PySQL
 
 # Lets define our database name (with default db_path).
 # We can activate Debugging by setting debug to True.
