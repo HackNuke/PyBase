@@ -1,5 +1,5 @@
-# PyBase Team | PyBase v0.5.0
-# Usage example file (for PyBase v0.5.0 and Discord.py v1.5.0).
+# PyBase Team | PyBase v1.0.0
+# Usage example file (for PyBase v1.0.0 and Discord.py v1.5.0).
 # ---------------------------------------------------------------
 # NOTE: This example code of a basic discord.py bot was extracted
 # from https://discordpy.readthedocs.io/en/latest/quickstart.html
@@ -11,7 +11,8 @@ from pybase_db import PyBase # Lets import the PyBase main class
 db = PyBase(
     database = "config",
     db_type = "json",
-    db_path = "./res/"
+    db_path = "./res",
+    debug = True
 )
 
 # ---------- Discord.py Code Starts Here ------------------------

@@ -1,4 +1,4 @@
-#       NTBBloodbath | PyBase v0.5.0       #
+#       NTBBloodbath | PyBase v1.0.0       #
 ############################################
 # PyBase is distributed under MIT License. #
 
@@ -30,17 +30,18 @@ class PyBase:
 
     Methods
     -------
-    delete(key: str=None)
+    delete(obj)
         Delete a object from the database established in PyBase init.
     fetch(key: str=None)
         Fetch a key inside the database established in PyBase init.
-    insert(content: dict, mode: str="w")
-        Insert a dictionary content inside the given database file.
     get(key: str=None)
         Read the database file established in PyBase init to to access its objects.
-
-    TODO:
-        Add more useful methods.
+    insert(content: dict, mode: str="w")
+        Insert a dictionary content inside the given database file.
+    push(key: str=None, element=None)
+        Push a new element to a list inside the database.
+    update(key: str=None, new_value=None)
+        Update the value of a key inside the database.
     """
     def __init__(self,
                  database: str,
@@ -173,11 +174,11 @@ class PyBase:
                 raise ValueError('db_type must be JSON, YAML or Bytes.')
         if self.__debug and self.__stats:
             try:
-                self.__interval(self.__send_stats, 60)
+                self.__interval(self.__send_stats, 120)
             except Exception:
                 console.print_exception()
 
-    def delete(self, key: str = None):
+    def delete(self, obj):
         """
         Delete a object from the database established in PyBase init.
 
@@ -185,86 +186,49 @@ class PyBase:
 
         Parameters
         ----------
-        key : str
+        obj
             The object which will be deleted from the database.
-            Default: None
 
         Raises
         ------
         KeyError
-            If the given key isn't found.
+            If key isn't found.
         ValueError
-            If key isn't a String.
+            If obj doesn't have a value (is equal to zero or None).
         """
 
-        if len(key) == 0 or key is None:
-            raise ValueError('key must be a String.')
+        if len(obj) == 0 or obj is None:
+            raise ValueError('obj must have a value (str, int, float, bool).')
         else:
             if self.__EXTENSION == '.json':
                 try:
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to delete the {key} key ...")
                     with open(self.__DB, encoding='utf-8') as json_file:
                         data = json.load(
                             json_file)  # Pass JSON to Python objects.
-                        if self.__util_split(key, data):
-                            data.pop(key)  # Delete the given object.
-                        else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                        data.pop(obj)  # Delete the given object.
                     with open(self.__DB, mode='w',
                               encoding='utf-8') as json_file:
                         json.dump(data, json_file, indent=4,
                                   sort_keys=True)  # Save
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG] The key {key} was successfully deleted.")
                 except KeyError:
                     console.print_exception()
             elif self.__EXTENSION == '.yaml':
                 try:
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to delete the {key} key ...")
                     with open(self.__DB, encoding='utf-8') as yaml_file:
                         data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                        if self.__util_split(key, data):
-                            data.pop(key)
-                        else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                        data.pop(obj)
                     with open(self.__DB, mode='w',
                               encoding='utf-8') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG] The key {key} was successfully deleted.")
                 except KeyError:
                     console.print_exception()
             elif self.__EXTENSION == '.bytes':
                 try:
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to delete the {key} key ...")
                     with open(self.__DB, mode="rb") as bytes_file:
                         data = pickle.load(bytes_file)
-                        if self.__util_split(key, data):
-                            data.pop(key)
-                        else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                        data.pop(obj)
                     with open(self.__DB, mode="wb") as bytes_file:
                         pickle.dump(data, bytes_file)
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            f"[DEBUG] The key {key} was successfully deleted.")
                 except KeyError:
                     console.print_exception()
 
@@ -393,139 +357,6 @@ class PyBase:
             except Exception:
                 console.print_exception()
 
-    def insert(self, content: dict, mode: str = "w"):
-        """
-        Insert a dictionary content inside the database file established in PyBase init.
-
-        ...
-
-        Parameters
-        ----------
-        content : dict
-            The content which will be inserted inside the database.
-        mode : str, optional
-            The way the data will be inserted ("w" for write and "a" for append).
-            Default: "w"
-
-        Raises
-        ------
-        TypeError
-            If content isn't a dictionary.
-            If mode isn't a String.
-        ValueError
-            If mode isn't equal to "w" or "a"
-        """
-
-        if type(content) != dict:
-            raise TypeError('content must be a dictionary.')
-        if type(mode) != str:
-            raise TypeError('mode must be a String.')
-        if mode != "w" and mode != "a":
-            raise ValueError('mode must be "w" or "a".')
-        else:
-            if self.__debug:
-                sleep(0.5)
-                console.log(
-                    f"[DEBUG]: Trying to insert {content} in mode {mode} inside the database ..."
-                )
-            if self.__EXTENSION == '.json':
-                try:
-                    if mode == "w":
-                        with open(self.__DB, encoding='utf-8') as json_file:
-                            data = json.load(json_file)
-                            data.update(content)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as json_file:
-                            json.dump(data,
-                                      json_file,
-                                      indent=4,
-                                      sort_keys=True)
-                    elif mode == "a":
-                        with open(self.__DB, encoding='utf-8') as json_file:
-                            data = json.load(json_file)
-                            for new_key in content:
-                                for original_key in data:
-                                    if new_key in original_key:
-                                        data[original_key].update(
-                                            content[new_key])
-                                    else:
-                                        data.update(
-                                            {new_key: content[new_key]})
-                                        break
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as json_file:
-                            json.dump(data,
-                                      json_file,
-                                      indent=4,
-                                      sort_keys=True)
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
-                        )
-                except Exception:
-                    console.print_exception()
-            elif self.__EXTENSION == '.yaml':
-                try:
-                    if mode == "w":
-                        with open(self.__DB, encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                            data.update(content)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as yaml_file:
-                            yaml.dump(data, yaml_file, sort_keys=True)
-                    elif mode == "a":
-                        with open(self.__DB, encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                            for new_key in content:
-                                for original_key in data:
-                                    if new_key in original_key:
-                                        data[original_key].update(
-                                            content[new_key])
-                                    else:
-                                        data.update(
-                                            {new_key: content[new_key]})
-                                        break
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as yaml_file:
-                            yaml.dump(data, yaml_file, sort_keys=True)
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
-                        )
-                except Exception:
-                    console.print_exception()
-            elif self.__EXTENSION == '.bytes':
-                try:
-                    if mode == "w":
-                        with open(self.__DB, mode="rb") as bytes_file:
-                            data = pickle.load(bytes_file) or {}
-                            data.update(content)
-                        with open(self.__DB, mode='wb') as bytes_file:
-                            pickle.dump(data, bytes_file)
-                    if mode == "a":
-                        with open(self.__DB, mode="rb") as bytes_file:
-                            data = pickle.load(bytes_file)
-                            for new_key in content:
-                                for original_key in data:
-                                    if new_key in original_key:
-                                        data[original_key].update(
-                                            content[new_key])
-                                    else:
-                                        data.update(
-                                            {new_key: content[new_key]})
-                                        break
-                        with open(self.__DB, mode="wb") as bytes_file:
-                            pickle.dump(data, bytes_file)
-                    if self.__debug:
-                        sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
-                        )
-                except Exception:
-                    console.print_exception()
-
     def get(self, key: str = None):
         """
         Read the database file established in PyBase init to access its objects or values ​​using the key.
@@ -626,6 +457,313 @@ class PyBase:
         except Exception:
             console.print_exception()
 
+    def insert(self, content: dict, mode: str = "w"):
+        """
+        Insert a dictionary content inside the database file established in PyBase init.
+
+        ...
+
+        Parameters
+        ----------
+        content : dict
+            The content which will be inserted inside the database.
+        mode : str, optional
+            The way the data will be inserted ("w" for write and "a" for append).
+            Default: "w"
+
+        Raises
+        ------
+        TypeError
+            If content isn't a dictionary.
+            If mode isn't a String.
+        ValueError
+            If mode isn't equal to "w" or "a"
+        """
+
+        if type(content) != dict:
+            raise TypeError('content must be a dictionary.')
+        if type(mode) != str:
+            raise TypeError('mode must be a String.')
+        if mode != "w" and mode != "a":
+            raise ValueError('mode must be "w" or "a".')
+        else:
+            if self.__debug:
+                sleep(0.5)
+                console.log(
+                    f"[DEBUG]: Trying to insert {content} in mode {mode} inside the database ..."
+                )
+            if self.__EXTENSION == '.json':
+                try:
+                    if mode == "w":
+                        with open(self.__DB, encoding='utf-8') as json_file:
+                            data = json.load(json_file)
+                            data.update(content)
+                        with open(self.__DB, mode='w',
+                                  encoding='utf-8') as json_file:
+                            json.dump(data,
+                                      json_file,
+                                      indent=4,
+                                      sort_keys=True)
+                            self.__close_file_delete(json_file)
+                    elif mode == "a":
+                        with open(self.__DB, encoding='utf-8') as json_file:
+                            data = json.load(json_file)
+                            for new_key in content:
+                                for original_key in data:
+                                    if new_key in original_key:
+                                        data[original_key].update(
+                                            content[new_key])
+                                    else:
+                                        data.update(
+                                            {new_key: content[new_key]})
+                                        break
+                            self.__close_file_delete(json_file)
+                        with open(self.__DB, mode='w',
+                                  encoding='utf-8') as json_file:
+                            json.dump(data,
+                                      json_file,
+                                      indent=4,
+                                      sort_keys=True)
+                            self.__close_file_delete(json_file)
+                    if self.__debug:
+                        sleep(0.5)
+                        console.log(
+                            "[DEBUG]: The data was successfully inserted inside the database."
+                        )
+                except Exception:
+                    console.print_exception()
+            elif self.__EXTENSION == '.yaml':
+                try:
+                    if mode == "w":
+                        with open(self.__DB, encoding='utf-8') as yaml_file:
+                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                            data.update(content)
+                            self.__close_file_delete(yaml_file)
+                        with open(self.__DB, mode='w',
+                                  encoding='utf-8') as yaml_file:
+                            yaml.dump(data, yaml_file, sort_keys=True)
+                            self.__close_file_delete(yaml_file)
+                    elif mode == "a":
+                        with open(self.__DB, encoding='utf-8') as yaml_file:
+                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                            for new_key in content:
+                                for original_key in data:
+                                    if new_key in original_key:
+                                        data[original_key].update(
+                                            content[new_key])
+                                    else:
+                                        data.update(
+                                            {new_key: content[new_key]})
+                                        break
+                            self.__close_file_delete(yaml_file)
+                        with open(self.__DB, mode='w',
+                                  encoding='utf-8') as yaml_file:
+                            yaml.dump(data, yaml_file, sort_keys=True)
+                            self.__close_file_delete(yaml_file)
+                    if self.__debug:
+                        sleep(0.5)
+                        console.log(
+                            "[DEBUG]: The data was successfully inserted inside the database."
+                        )
+                except Exception:
+                    console.print_exception()
+            elif self.__EXTENSION == '.bytes':
+                try:
+                    if mode == "w":
+                        with open(self.__DB, mode="rb") as bytes_file:
+                            data = pickle.load(bytes_file) or {}
+                            data.update(content)
+                        with open(self.__DB, mode='wb') as bytes_file:
+                            pickle.dump(data, bytes_file)
+                    if mode == "a":
+                        with open(self.__DB, mode="rb") as bytes_file:
+                            data = pickle.load(bytes_file)
+                            for new_key in content:
+                                for original_key in data:
+                                    if new_key in original_key:
+                                        data[original_key].update(
+                                            content[new_key])
+                                    else:
+                                        data.update(
+                                            {new_key: content[new_key]})
+                                        break
+                            self.__close_file_delete(bytes_file)
+                        with open(self.__DB, mode="wb") as bytes_file:
+                            pickle.dump(data, bytes_file)
+                    if self.__debug:
+                        sleep(0.5)
+                        console.log(
+                            "[DEBUG]: The data was successfully inserted inside the database."
+                        )
+                except Exception:
+                    console.print_exception()
+
+    def push(self, key: str=None, element=None):
+        """
+        Push a new element to an Array (list) inside the database.
+
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The List to which the data will be pushed.
+        element
+            The element that'll be pushed to the List.
+
+        Raises
+        ------
+        TypeError
+            If key isn't a String.
+        KeyError
+            If the given key doesn't exists.
+        ValueError
+            If the given key isn't a List.
+        """
+
+        if type(key) is not str:
+            raise TypeError('key must be a String')
+        if self.__debug:
+            sleep(0.5)
+            console.log(
+                f"[DEBUG]: Trying to push {element} into {key} ..."
+            )
+        if self.__EXTENSION == ".json":
+            try:
+                with open(self.__DB, encoding="utf-8") as json_file:
+                    data = json.load(json_file)
+                    if self.__util_split(key, data) and isinstance(self.__util_split(key, data), list):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
+                        self.__util_split(key, data).append(element)
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file or is not a list")
+                with open(self.__DB, encoding="utf-8", mode="w") as json_file:
+                    json.dump(data,
+                              json_file,
+                              indent=4,
+                              sort_keys=True)
+                    self.__close_file_delete(json_file)
+            except Exception:
+                console.print_exception()
+        elif self.__EXTENSION == ".yaml":
+            try:
+                with open(self.__DB, encoding="utf-8") as yaml_file:
+                    data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                    if self.__util_split(key, data) and isinstance(self.__util_split(key, data), list):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
+                        self.__util_split(key, data).append(element)
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file or is not a list")
+                with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
+                    yaml.dump(data, yaml_file, sort_keys=True)
+                    self.__close_file_delete(yaml_file)
+            except Exception:
+                console.print_exception()
+        elif self.__EXTENSION == ".bytes":
+            try:
+                with open(self.__DB) as bytes_file:
+                    data = pickle.load(bytes_file)
+                    if self.__util_split(key, data) and isinstance(self.__util_split(key, data), list):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
+                        self.__util_split(key, data).append(element)
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file or is not a list")
+                with open(self.__DB, mode="wb") as bytes_file:
+                    pickle.dump(data, bytes_file)
+                    self.__close_file_delete(bytes_file)
+            except Exception:
+                console.print_exception()
+
+    def update(self, key: str=None, new_value=None):
+        """
+        Update the value of a key inside the database.
+
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The key that'll be updated.
+        new_value
+            The new value of the key.
+
+        Raises
+        ------
+        TypeError
+            If key isn't a String.
+        KeyError
+            If the given key doesn't exists.
+        """
+
+        if type(key) is not str:
+            raise TypeError('key must be a String')
+        if self.__debug:
+            sleep(0.5)
+            console.log(
+                f"[DEBUG]: Trying to change the value of {key} ..."
+            )
+        if self.__EXTENSION == ".json":
+            try:
+                with open(self.__DB, encoding="utf-8") as json_file:
+                    data = json.load(json_file)
+                    if self.__util_split(key, data):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
+                        obj = self.__util_split(key, data)
+                        obj = new_value
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file.")
+                with open(self.__DB, encoding="utf-8", mode="w") as json_file:
+                    json.dump(data,
+                              json_file,
+                              indent=4,
+                              sort_keys=True)
+                    self.__close_file_delete(json_file)
+            except Exception:
+                console.print_exception()
+        elif self.__EXTENSION == ".yaml":
+            try:
+                with open(self.__DB, encoding="utf-8") as yaml_file:
+                    data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                    if self.__util_split(key, data):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
+                        obj = self.__util_split(key, data)
+                        obj = new_value
+                with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
+                    yaml.dump(data, yaml_file, sort_keys=True)
+                    self.__close_file_delete(yaml_file)
+            except Exception:
+                console.print_exception()
+        elif self.__EXTENSION == ".bytes":
+            try:
+                with open(self.__DB, mode="rb") as bytes_file:
+                    data = pickle.load(bytes_file)
+                    if self.__util_split(key, data):
+                        if self.__debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
+                        obj = self.__util_split(key, data)
+                        obj = new_value
+                with open(self.__DB, mode="wb") as bytes_file:
+                    pickle.dump(data, bytes_file)
+                    self.__close_file_delete(bytes_file)
+            except Exception:
+                console.print_exception()
+
+    # ---------- Internal methods ----------
     def __close_file_delete(self, file):
         """
         Method only for the class, close the open file and erase it from memory (slightly better performance)
@@ -680,10 +818,14 @@ class PyBase:
                 dataObject = dataObject[keys]
 
     def __send_stats(self):
+        """
+        Method to send statistics of usage.
+        """
+
         pybase_process   = psutil.Process(os.getpid())                 # Get PyBase process ID
         pybase_cpu_usage = pybase_process.cpu_percent(interval=1.0)    # CPU Usage in percentage
         pybase_ram_usage = round(pybase_process.memory_percent(), 1)   # Memory usage in percentage
-        console.log(f"""[DEBUG]: Showing PyBase Usage stadistics ...
+        console.log(f"""[DEBUG]: Showing PyBase Usage statistics ...
          CPU Usage: {pybase_cpu_usage}%
          RAM Usage: {pybase_ram_usage}%""")
 

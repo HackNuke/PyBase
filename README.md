@@ -11,8 +11,6 @@ PyBase is a DataBase Manager for JSON, YAML, Bytes and SQLite.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
-> **PyBase is actually on Beta phase, may contain bugs.**
-
 ------
 
 ## Why PyBase?
@@ -37,6 +35,15 @@ PyBase requires Python 3.x and can be installed through `pip` with the following
 python3 -m pip install -U pybase_db
 ```
 
+### Building
+The development branch changes aren't compiled and uploaded to Pypi,
+so you must compile a wheel yourself to test the experimental stuff.
+```sh
+python3 setup.py bdist_wheel
+
+python3 -m pip install -U dist/pybase_db-version-py3-none-any.whl
+```
+
 ## Usage example
 This is a brief example of the methods that PyBase currently has.
 ```py
@@ -48,14 +55,14 @@ from pybase_db.pybase_db import PyBase
 db = PyBase("example", "JSON", debug=True, stats=True)  # => ./example.json
 
 # Lets define and add some content to our database.
-pybase_info = {"pybase": "awesomeness", "version": "0.4.0"}
+pybase_info = {"pybase": "awesomeness", "version": "1.0.0"}
 
 # Lets insert the defined dict inside our database.
 db.insert(pybase_info,
-          mode="w")  # => {'pybase': 'awesomeness', 'version': '0.4.0'}
+          mode="w")  # => {'pybase': 'awesomeness', 'version': '1.0.0'}
 
 # Lets delete an object inside our database cuz it's useless.
-db.delete('pybase')  # => {'version': '0.4.0'}
+db.delete('pybase')  # => {'version': '1.0.0'}
 
 # Lets insert more data cuz that's funny!
 db.insert(content={"guilds": {}, "ownerID": 1234567890}, mode="w")
@@ -78,23 +85,23 @@ db.insert(content={
 db.fetch('version')  # => <class 'str'>
 
 # Gets the corresponding value according to the specified key
-db.get("version")  # => '0.4.0'
+db.get("version")  # => '1.0.0'
 
 # New data of the new update
-pybase_update = {"pybase": {"newVersion": {"version": "0.4.0"}}}
+pybase_update = {"pybase": {"newVersion": {"version": "1.0.0"}}}
 db.insert(pybase_update)
 
 # Get all data from db
-db.get()  # => {'pybase': {'newVersion': {'version': '0.4.0'}}, 'version': '0.4.0'}
+db.get()  # => {'pybase': {'newVersion': {'version': '1.0.0'}}, 'version': '1.0.0'}
 
 # Get the values using its key
-db.get("pybase")  # => {'newVersion': {'version': '0.4.0'}}
+db.get("pybase")  # => {'newVersion': {'version': '1.0.0'}}
 
 # Get a value of a key separated by a period (.)
-db.get("pybase.newVersion")  # => {'version': '0.4.0'}
+db.get("pybase.newVersion")  # => {'version': '1.0.0'}
 
 # Several
-db.get("pybase.newVersion.version")  # => 0.4.0
+db.get("pybase.newVersion.version")  # => 1.0.0
 ```
 
 > **To see SQLite3 usage example, click [here](./examples/pysql_usage.py)**
@@ -108,11 +115,11 @@ You can see the PyBase changelog [here](./CHANGELOG.md)
 
 ------
 
-## License
+# License
 **PyBase is distributed under MIT License.**
 
-## Contributing
+# Contributing
 You can see how to contribute [here](./CONTRIBUTING.md)
 
-## Code of Conduct
+# Code of Conduct
 You can see the code of conduct [here](./CODE_OF_CONDUCT.md)

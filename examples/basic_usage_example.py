@@ -1,5 +1,5 @@
-# NTBBloodbath | PyBase v0.4.0
-# Usage example file (for v0.4.0).
+# NTBBloodbath | PyBase v1.0.0
+# Usage example file (for v1.0.0).
 
 # Lets import PyBase Class from PyBase Package
 from pybase_db import PyBase
@@ -9,14 +9,14 @@ from pybase_db import PyBase
 db = PyBase("example", "JSON", debug=True, stats=True)  # => ./example.json
 
 # Lets define and add some content to our database.
-pybase_info = {"pybase": "awesomeness", "version": "0.4.0"}
+pybase_info = {"pybase": "awesomeness", "version": "1.0.0"}
 
 # Lets insert the defined dict inside our database.
 db.insert(pybase_info,
-          mode="w")  # => {'pybase': 'awesomeness', 'version': '0.4.0'}
+          mode="w")  # => {'pybase': 'awesomeness', 'version': '1.0.0'}
 
 # Lets delete an object inside our database cuz it's useless.
-db.delete('pybase')  # => {'version': '0.4.0'}
+db.delete('pybase')  # => {'version': '1.0.0'}
 
 # Lets insert more data cuz that's funny!
 db.insert(content={"guilds": {}, "ownerID": 1234567890}, mode="w")
@@ -39,20 +39,20 @@ db.insert(content={
 db.fetch('version')  # => <class 'str'>
 
 # Gets the corresponding value according to the specified key
-db.get("version")  # => '0.4.0'
+db.get("version")  # => '1.0.0'
 
 # New data of the new update
-pybase_update = {"pybase": {"newVersion": {"version": "0.4.0"}}}
+pybase_update = {"pybase": {"newVersion": {"version": "1.0.0"}}}
 db.insert(pybase_update)
 
 # Get all data from db
-db.get()  # => {'pybase': {'newVersion': {'version': '0.4.0'}}, 'version': '0.4.0'}
+db.get()  # => {'pybase': {'newVersion': {'version': '1.0.0'}}, 'version': '1.0.0'}
 
 # Get the values using its key
-db.get("pybase")  # => {'newVersion': {'version': '0.4.0'}}
+db.get("pybase")  # => {'newVersion': {'version': '1.0.0'}}
 
 # Get a value of a key separated by a period (.)
-db.get("pybase.newVersion")  # => {'version': '0.4.0'}
+db.get("pybase.newVersion")  # => {'version': '1.0.0'}
 
 # Several
-db.get("pybase.newVersion.version")  # => 0.4.0
+db.get("pybase.newVersion.version")  # => 1.0.0
