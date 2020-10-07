@@ -632,7 +632,7 @@ class PyBase:
             try:
                 with open(self.__DB, encoding="utf-8") as json_file:
                     data = json.load(json_file)
-                    if self.__util_split(key, data):
+                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:
                         if self.__debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found. Trying to push ...")
@@ -652,7 +652,7 @@ class PyBase:
             try:
                 with open(self.__DB, encoding="utf-8") as yaml_file:
                     data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                    if self.__util_split(key, data):
+                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:
                         if self.__debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found. Trying to push ...")
@@ -669,7 +669,7 @@ class PyBase:
             try:
                 with open(self.__DB) as bytes_file:
                     data = pickle.load(bytes_file)
-                    if self.__util_split(key, data):
+                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:                   
                         if self.__debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found. Trying to push ...")
