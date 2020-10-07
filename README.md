@@ -32,12 +32,17 @@ just one method, and simplifies the task of manipulating their data!**
 ## Installation
 PyBase requires Python 3.x and can be installed through `pip` with the following command.
 ```sh
+# Stable version
 python3 -m pip install -U pybase_db
+
+# Pre-release (Development) version
+python3 -m pip install -U --pre pybase_db
 ```
 
 ### Building
-The development branch changes aren't compiled and uploaded to Pypi,
-so you must compile a wheel yourself to test the experimental stuff.
+The development branch changes aren't compiled and uploaded to Pypi every time,
+so you must compile a wheel yourself to test the experimental stuff if the newest
+changes aren't uploaded to Pypi.
 ```sh
 python3 setup.py bdist_wheel
 

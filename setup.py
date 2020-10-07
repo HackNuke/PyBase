@@ -11,7 +11,7 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='pybase_db',
-    version='1.0.0',
+    version='1.0.0.dev0',
     description=
     'PyBase is a database manager for YAML, JSON, Bytes and SQLite3. Very poweful, simple and effective.',
     long_description=long_description,
