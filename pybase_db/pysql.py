@@ -8,6 +8,11 @@ import os
 import pathlib
 import sqlite3
 
+# for configuration purposes
+import json
+import toml
+import yaml
+
 from time import sleep
 from rich.console import Console
 from rich.traceback import install
@@ -36,8 +41,7 @@ class PySQL:
     """
     def __init__(self,
                  database: str = None,
-                 db_path: str = pathlib.Path().absolute(),
-                 debug: bool = False):
+                 db_path: str = pathlib.Path().absolute()):
         """
         Define the SQLite3 database to use and create it if it doesn't exist.
 
@@ -62,11 +66,145 @@ class PySQL:
             If the given path wasn't found.
         """
 
-        self.__path = db_path  # private path variable to clean code.
-        if isinstance(debug, bool) is False:
-            raise TypeError('debug must be a Boolean.')
-        else:
-            self.__debug = debug  # debug messages
+        self.__path = db_path
+
+        # Search for config file
+        for files in os.listdir(pathlib.Path().absolute()):
+            if files == "pybase.json":
+                with open(files, encoding="utf-8", mode="r") as config_file:
+                    config = json.load(config_file)
+
+                    if "debugging" in config:
+                        if "debug" in config["debugging"]:
+                            if isinstance(config["debugging"]["debug"], bool):
+                                self.__debug = config["debugging"]["debug"]
+                            else:
+                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__debug = False
+                        if "stats" in config["debugging"]:
+                            if isinstance(config["debugging"]["stats"], bool):
+                                self.__stats = config["debugging"]["stats"]
+                            else:
+                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__stats = False
+                    else:
+                        if "debug" in config:
+                            raise KeyError('debug must be inside the debugging key in the config file.')
+                        elif "stats" in config:
+                            raise KeyError('stats must be inside the debugging key in the config file.')
+
+                    if "logs" in config:
+                        if "enabled" in config["logs"]:
+                            if isinstance(config["logs"]["enabled"], bool):
+                                self.__logs_enabled = config["logs"]["enabled"]
+                            else:
+                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
+                        else:
+                            self.__logs_enabled = False
+                        if "location" in config["logs"]:
+                            if isinstance(config["logs"]["location"], str):
+                                self.__logs_location = config["logs"]["location"]
+                            else:
+                                raise KeyError('location must be a String in the logs key inside the config file.')
+                        else:
+                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
+                    else:
+                        if "enabled" in config:
+                            raise KeyError('enabled must be inside the logs key in the config file.')
+                        elif "location" in config:
+                            raise KeyError('location must be inside the logs key in the config file.')
+            elif files == "pybase.yaml" or "pybase.yml":
+                with open(files, encoding="utf-8", mode="r") as config_file:
+                    config = yaml.safe_load(config_file)
+
+                    if "debugging" in config:
+                        if "debug" in config["debugging"]:
+                            if isinstance(config["debugging"]["debug"], bool):
+                                self.__debug = config["debugging"]["debug"]
+                            else:
+                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__debug = False
+                        if "stats" in config["debugging"]:
+                            if isinstance(config["debugging"]["stats"], bool):
+                                self.__stats = config["debugging"]["stats"]
+                            else:
+                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__stats = False
+                    else:
+                        if "debug" in config:
+                            raise KeyError('debug must be inside the debugging key in the config file.')
+                        elif "stats" in config:
+                            raise KeyError('stats must be inside the debugging key in the config file.')
+
+                    if "logs" in config:
+                        if "enabled" in config["logs"]:
+                            if isinstance(config["logs"]["enabled"], bool):
+                                self.__logs_enabled = config["logs"]["enabled"]
+                            else:
+                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
+                        else:
+                            self.__logs_enabled = False
+                        if "location" in config["logs"]:
+                            if isinstance(config["logs"]["location"], str):
+                                self.__logs_location = config["logs"]["location"]
+                            else:
+                                raise KeyError('location must be a String in the logs key inside the config file.')
+                        else:
+                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
+                    else:
+                        if "enabled" in config:
+                            raise KeyError('enabled must be inside the logs key in the config file.')
+                        elif "location" in config:
+                            raise KeyError('location must be inside the logs key in the config file.')
+            elif files == "pybase.toml":
+                with open(files, encoding="utf-8", mode="r") as config_file:
+                    config = toml.load(config_file)
+
+                    if "debugging" in config:
+                        if "debug" in config["debugging"]:
+                            if isinstance(config["debugging"]["debug"], bool):
+                                self.__debug = config["debugging"]["debug"]
+                            else:
+                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__debug = False
+                        if "stats" in config["debugging"]:
+                            if isinstance(config["debugging"]["stats"], bool):
+                                self.__stats = config["debugging"]["stats"]
+                            else:
+                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
+                        else:
+                            self.__stats = False
+                    else:
+                        if "debug" in config:
+                            raise KeyError('debug must be inside the debugging key in the config file.')
+                        elif "stats" in config:
+                            raise KeyError('stats must be inside the debugging key in the config file.')
+
+                    if "logs" in config:
+                        if "enabled" in config["logs"]:
+                            if isinstance(config["logs"]["enabled"], bool):
+                                self.__logs_enabled = config["logs"]["enabled"]
+                            else:
+                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
+                        else:
+                            self.__logs_enabled = False
+                        if "location" in config["logs"]:
+                            if isinstance(config["logs"]["location"], str):
+                                self.__logs_location = config["logs"]["location"]
+                            else:
+                                raise KeyError('location must be a String in the logs key inside the config file.')
+                        else:
+                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
+                    else:
+                        if "enabled" in config:
+                            raise KeyError('enabled must be inside the logs key in the config file.')
+                        elif "location" in config:
+                            raise KeyError('location must be inside the logs key in the config file.')
 
         # If database isn't equal to None or isn't a String, then raise TypeError.
         if type(database) != str and database is None:

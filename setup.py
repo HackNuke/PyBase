@@ -21,7 +21,12 @@ setup(
     author_email='bloodbathalchemist@protonmail.com',
     license='MIT',
     packages=find_packages(),
-    install_requires=['psutil>=5.7.2', 'pyyaml>=5.3.1', 'rich>=8.0.0'],
+    install_requires=[
+        'psutil>=5.7.2',
+        'pyyaml>=5.3.1',
+        'rich>=8.0.0',
+        'toml>=0.10.2'
+    ],
     classifiers=[
         'Programming Language :: Python :: 3 :: Only',
         'Development Status :: 4 - Beta',

@@ -1,0 +1,7 @@
+debugging:
+    debug: true       # Default: false
+    stats: false      # Default: false
+
+logs:
+    enabled: true     # Default: false
+    location: "./tmp" # Default: ROOT_DIR/tmp -> ./tmp
