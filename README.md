@@ -36,6 +36,12 @@ python3 -m pip install -U pybase_db
 
 # Pre-release (Development) version
 python3 -m pip install -U --pre pybase_db
+
+# From gitlab's latest commit
+# Available branches:
+#   • master (recommended)
+#   • development (unstable releases)
+python3 -m pip install -U git+https://gitlab.com/NTBBloodbath/PyBase@branch
 ```
 
 ### Building
@@ -109,6 +115,30 @@ db.get("pybase.newVersion.version")  # => 1.0.0
 ```
 
 > **To see SQLite3 usage example, click [here](./examples/pysql_usage.py)**
+
+## Benchmark
+PyBase is made to be fast, and what better proof than a benchmarking test?
+> Note: you can see the code used for the test in [tests](./tests/benchmark.py)
+
+```
+creating        took 0.002 seconds to complete its execution.
+
+insert_1        took 0.004 seconds to complete its execution.
+
+insert_2        took 0.004 seconds to complete its execution.
+
+deleting        took 0.008 seconds to complete its execution.
+
+fetching        took 0.003 seconds to complete its execution.
+
+getting_one     took 0.003 seconds to complete its execution.
+
+getting_all     took 0.003 seconds to complete its execution.
+
+pushing_1       took 0.005 seconds to complete its execution.
+
+updating        took 0.004 seconds to complete its execution.
+```
 
 ## Documentation
 You can see the PyBase documentation through the `help()` function of the REPL
