@@ -3,20 +3,23 @@
 # PyBase is distributed under MIT License. #
 
 # dependencies (packages/modules)
+import datetime
 import json
 import os
 import pathlib
 import pickle
-import threading
-import toml
+from threading import Thread
 from time import sleep
 
-import psutil
+import toml
 import yaml
 from rich.console import Console
 from rich.traceback import install
 
-install()  # Use Rich traceback handler as the default error handler
+from .utils import Utils
+from .version import __version__
+
+install() # Use Rich traceback handler as the default error handler
 console = Console()
 
 
@@ -41,8 +44,6 @@ class PyBase:
         Insert a dictionary content inside the given database file.
     push(key: str=None, element=None)
         Push a new element to a list inside the database.
-    rename(old_key: str=None, new_key: str=None)
-        Rename a key if it exists inside the database.
     update(key: str=None, new_value=None)
         Update the value of a key inside the database.
     """
@@ -61,173 +62,24 @@ class PyBase:
             The name of the database without extension.
         db_type : str
             The database type.
-            Available types: yaml, json, bytes
+            Available types: yaml, json, toml, bytes
             Note: To use SQLite3, use the PySQL module.
         db_path : str, optional
             The path where the database is located (default is current working directory).
             Example: /home/bloodbath/Desktop/PyBase
-        debug : bool, optional
-            Debug messages. See what's happening in your database behind the curtains!
-            Default: False
-        stats : bool, optional
-            Stadistics messages. See how much CPU and RAM PyBase is using every minute (in percentage)!
-            Default: False
-            Note: You must have debug enabled to use the statistics!
 
         Raises
         ------
         TypeError
             If database or db_type isn't a String.
-            If debug isn't a Boolean in the config file.
-            If stats isn't a Boolean in the config file.
-            If enabled isn't a Boolean in the config file.
-            If location isn't a String in the config file.
-        KeyError
-            If debug or stats aren't inside the debugging key in the config file.
-            If enabled or location aren't inside the logs key in the config file.
         ValueError
-            If the given db_type isn't a valid type (JSON, YAML, Bytes).
+            If the given db_type isn't a valid type (JSON, YAML, TOML, Bytes).
         """
 
         self.__path = db_path
 
         # Search for config file
-        for files in os.listdir(pathlib.Path().absolute()):
-            if files == "pybase.json":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = json.load(config_file)
-
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError('debug must be inside the debugging key in the config file.')
-                        elif "stats" in config:
-                            raise KeyError('stats must be inside the debugging key in the config file.')
-
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"]["location"]
-                            else:
-                                raise KeyError('location must be a String in the logs key inside the config file.')
-                        else:
-                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError('enabled must be inside the logs key in the config file.')
-                        elif "location" in config:
-                            raise KeyError('location must be inside the logs key in the config file.')
-            elif files == "pybase.yaml" or "pybase.yml":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = yaml.safe_load(config_file)
-
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError('debug must be inside the debugging key in the config file.')
-                        elif "stats" in config:
-                            raise KeyError('stats must be inside the debugging key in the config file.')
-
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"]["location"]
-                            else:
-                                raise KeyError('location must be a String in the logs key inside the config file.')
-                        else:
-                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError('enabled must be inside the logs key in the config file.')
-                        elif "location" in config:
-                            raise KeyError('location must be inside the logs key in the config file.')
-            elif files == "pybase.toml":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = toml.load(config_file)
-
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError('debug must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError('stats must be a Boolean in the debugging key inside config file.')
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError('debug must be inside the debugging key in the config file.')
-                        elif "stats" in config:
-                            raise KeyError('stats must be inside the debugging key in the config file.')
-
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError('enabled must be a Boolean in the logs key inside config file.')
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"]["location"]
-                            else:
-                                raise KeyError('location must be a String in the logs key inside the config file.')
-                        else:
-                            self.__logs_location = pathlib.Path().absolute() + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError('enabled must be inside the logs key in the config file.')
-                        elif "location" in config:
-                            raise KeyError('location must be inside the logs key in the config file.')
+        Utils().search_config()
 
         if type(database) != str:
             raise TypeError('database must be a String.')
@@ -236,23 +88,67 @@ class PyBase:
         elif type(db_type) == str:
             self.__EXTENSION = '.' + db_type.lower()
             self.__DB = (f'{self.__path}/{database}{self.__EXTENSION}')
-            if os.path.exists(self.__path) is not True:
-                if self.__debug:
+
+            if Utils().debug:
+                console.log(
+                    f"[DEBUG]: Using PyBase v{__version__}"
+                )
+
+            if os.path.exists(self.__path) is False:
+                if Utils().debug:
+                    sleep(0.5)
                     console.log(
-                        "[DEBUG]: The established path doesn't exist, trying to create it ..."
+                        "[DEBUG]: The established path doesn't exist. Trying to create it ..."
                     )
                 try:
-                    pathlib.Path(self.__path).mkdir(parents=True, exist_ok=True)
+                    pathlib.Path(self.__path).mkdir(parents=True,
+                                                    exist_ok=True)
                 except Exception:
                     console.print_exception()
-            if self.__debug:
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="w") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+            if os.path.exists(Utils().logs_location) is False:
+                if Utils().debug:
+                    sleep(0.5)
+                    console.log(
+                        "[DEBUG]: The established logs location doesn't exist. Trying to create it ..."
+                    )
+                try:
+                    pathlib.Path(Utils().logs_location).mkdir(parents=True,
+                                                             exist_ok=True)
+                except Exception:
+                    console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+
+            # Search for old logs files and delete them every 20m
+            if Utils().logs_enabled:
+                def search_old_logs():
+                    Utils().delete_old_logs()
+                    sleep(Utils().time_to_seconds("1m"))
+
+                delete_old_logs = Thread(target = search_old_logs)
+                delete_old_logs.daemon = True
+                delete_old_logs.start()
+            
+            if Utils().debug:
                 sleep(0.5)
                 console.log(
                     f"[DEBUG]: Searching if the database ({self.__DB}) exists ..."
                 )
             if db_type.lower() == 'json':
                 if os.path.exists(self.__DB) is False:
-                    if self.__debug:
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
@@ -261,16 +157,31 @@ class PyBase:
                         with open(self.__DB, mode='w+',
                                   encoding='utf-8') as json_file:
                             json.dump({}, json_file)
-                        if self.__debug:
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(
                                 "[DEBUG]: The database file was created successfully."
                             )
-                    except Exception:
+                        if Utils().logs_enabled:
+                            if len(os.listdir(Utils().logs_location)) == 0:
+                                with open(f"{Utils().logs_location}/logfile_{datetime.datetime.utcnow().strftime('%Y-%m-%d')}.log", mode="w") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"The database was created successfully\n({self.__DB}).\n\n"
+                                    )
+                    except Exception as err:
                         console.print_exception()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
             elif db_type.lower() == 'yaml':
                 if os.path.exists(self.__DB) is False:
-                    if self.__debug:
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
@@ -279,16 +190,56 @@ class PyBase:
                         with open(self.__DB, mode='w+',
                                   encoding='utf-8') as yaml_file:
                             yaml.dump({}, yaml_file)
-                        if self.__debug:
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(
                                 "[DEBUG]: The database file was created successfully."
                             )
-                    except Exception:
+                    except Exception as err:
                         console.print_exception()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
+            elif db_type.lower() == 'toml':
+                if os.path.exists(self.__DB) is False:
+                    if Utils().debug:
+                        sleep(0.5)
+                        console.log(
+                            f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
+                        )
+                    try:
+                        with open(self.__DB, mode='w+',
+                                  encoding='utf-8') as toml_file:
+                            toml.dump({}, toml_file)
+                        if Utils().debug:
+                            sleep(0.5)
+                            console.log(
+                                "[DEBUG]: The database file was created successfully."
+                            )
+                        if Utils().logs_enabled:
+                            if len(os.listdir(Utils().logs_location)) == 0:
+                                with open(f"{Utils().logs_location}/logfile_{datetime.datetime.utcnow().strftime('%Y-%m-%d')}.log", mode="w") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"The database was created successfully\n({self.__DB}).\n\n"
+                                    )
+                    except Exception as err:
+                        console.print_exception()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
             elif db_type.lower() == "bytes":
                 if not os.path.exists(self.__DB):
-                    if self.__debug:
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
@@ -296,20 +247,42 @@ class PyBase:
                     try:
                         with open(self.__DB, mode="wb") as bytes_file:
                             pickle.dump({}, bytes_file)
-                        if self.__debug:
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(
                                 "[DEBUG]: The database file was created successfully."
                             )
-                    except Exception:
+                        if Utils().logs_enabled:
+                            if len(os.listdir(Utils().logs_location)) == 0:
+                                with open(f"{Utils().logs_location}/logfile_{datetime.datetime.utcnow().strftime('%Y-%m-%d')}.log", mode="w") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"The database was created successfully\n({self.__DB}).\n\n"
+                                    )
+                    except Exception as err:
                         console.print_exception()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
             else:
-                raise ValueError('db_type must be JSON, YAML or Bytes.')
-        if self.__debug and self.__stats:
+                raise ValueError('db_type must be JSON, YAML, TOML or Bytes.')
+        if Utils().stats_enabled:
             try:
-                self.__interval(self.__send_stats, 120)
-            except Exception:
+                Utils().interval(Utils().send_stats, Utils().time_to_seconds(Utils().stats_interval))
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
 
     def delete(self, obj):
         """
@@ -336,25 +309,75 @@ class PyBase:
             if self.__EXTENSION == '.json':
                 try:
                     with open(self.__DB, encoding='utf-8') as json_file:
-                        data = json.load(
-                            json_file)  # Pass JSON to Python objects.
-                        data.pop(obj)  # Delete the given object.
-                    with open(self.__DB, mode='w',
-                              encoding='utf-8') as json_file:
-                        json.dump(data, json_file, indent=4,
-                                  sort_keys=True)  # Save
-                except KeyError:
+                        data = json.load(json_file)
+                        data.pop(obj)
+                    with open(self.__DB, encoding="utf-8", mode="w") as json_file:
+                        json.dump(data, json_file, indent=4, sort_keys=True)
+                        Utils().close_file_delete(json_file)
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{obj} key have been removed from the database.\n\n"
+                            )
+                except KeyError as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
             elif self.__EXTENSION == '.yaml':
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
-                        data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                        data = yaml.safe_load(yaml_file)
                         data.pop(obj)
-                    with open(self.__DB, mode='w',
-                              encoding='utf-8') as yaml_file:
+                    with open(self.__DB, encoding='utf-8', mode='w') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
-                except KeyError:
+                        Utils().close_file_delete(yaml_file)
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{obj} key have been removed from the database.\n\n"
+                            )
+                except KeyError as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+            elif self.__EXTENSION == '.toml':
+                try:
+                    with open(self.__DB, encoding='utf-8') as toml_file:
+                        data = toml.load(toml_file)
+                        data.pop(obj)
+                    with open(self.__DB, encoding='utf-8', mode='w') as toml_file:
+                        toml.dump(data, toml_file)
+                        Utils().close_file_delete(toml_file)
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{obj} key have been removed from the database.\n\n"
+                            )
+                except KeyError as err:
+                    console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
             elif self.__EXTENSION == '.bytes':
                 try:
                     with open(self.__DB, mode="rb") as bytes_file:
@@ -362,8 +385,24 @@ class PyBase:
                         data.pop(obj)
                     with open(self.__DB, mode="wb") as bytes_file:
                         pickle.dump(data, bytes_file)
-                except KeyError:
+                        Utils().close_file_delete(bytes_file)
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{obj} key have been removed from the database.\n\n"
+                            )
+                except KeyError as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+
 
     def fetch(self, key: str = None):
         """
@@ -402,7 +441,7 @@ class PyBase:
         if type(key) != str:
             raise TypeError('key must be a String.')
         else:
-            if self.__debug:
+            if Utils().debug:
                 sleep(0.5)
                 console.log(f"[DEBUG]: Searching for the key {key} ...")
             try:
@@ -411,25 +450,39 @@ class PyBase:
                         with open(self.__DB, mode="r+",
                                   encoding="utf-8") as json_file:
                             data = json.load(json_file) or {}
-                            self.__close_file_delete(json_file)
-                            if self.__debug:
+                            Utils().close_file_delete(json_file)
+                            if Utils().debug:
                                 sleep(0.5)
                                 console.log(
                                     f"[DEBUG]: {key} was found and its type is {type(data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                    )
                             return type(data)
                     else:
                         with open(self.__DB, mode="r+",
                                   encoding="utf-8") as json_file:
                             data = json.load(json_file) or {}
-                            self.__close_file_delete(json_file)
-                            if self.__util_split(key, data):
-                                if self.__debug:
+                            Utils().close_file_delete(json_file)
+                            if Utils().util_split(key, data):
+                                if Utils().debug:
                                     sleep(0.5)
                                     console.log(
                                         f"[DEBUG]: {key} was found and its type is {type(data)}"
                                     )
-                                return type(self.__util_split(key, data))
+                                if Utils().logs_enabled:
+                                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                        log_file.write(
+                                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                            + "========================\n"
+                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        )
+                                return type(Utils().util_split(key, data))
                             else:
                                 raise KeyError(
                                     f"\"{key}\" Does not exist in the file")
@@ -437,28 +490,81 @@ class PyBase:
                     if key is None:
                         with open(self.__DB, mode='r+',
                                   encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file,
-                                             Loader=yaml.FullLoader) or {}
-                            self.__close_file_delete(yaml_file)
-                            if self.__debug:
+                            data = yaml.safe_load(yaml_file) or {}
+                            Utils().close_file_delete(yaml_file)
+                            if Utils().debug:
                                 sleep(0.5)
                                 console.log(
                                     f"[DEBUG]: {key} was found and its type is {type(data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                    )
                             return type(data)
                     else:
                         with open(self.__DB, mode='r+',
                                   encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file,
-                                             Loader=yaml.FullLoader) or {}
-                            self.__close_file_delete(yaml_file)
-                            if self.__util_split(key, data):
-                                if self.__debug:
+                            data = yaml.safe_load(yaml_file) or {}
+                            Utils().close_file_delete(yaml_file)
+                            if Utils().util_split(key, data):
+                                if Utils().debug:
                                     sleep(0.5)
                                     console.log(
                                         f"[DEBUG]: {key} was found and its type is {type(data)}"
                                     )
-                                return type(self.__util_split(key, data))
+                                if Utils().logs_enabled:
+                                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                        log_file.write(
+                                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                            + "========================\n"
+                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        )
+                                return type(Utils().util_split(key, data))
+                            else:
+                                raise KeyError(
+                                    f"\"{key}\" Does not exist in the file")
+                elif self.__EXTENSION == ".toml":
+                    if key is None:
+                        with open(self.__DB, mode="r+",
+                                  encoding="utf-8") as toml_file:
+                            data = toml.load(toml_file) or {}
+                            Utils().close_file_delete(toml_file)
+                            if Utils().debug:
+                                sleep(0.5)
+                                console.log(
+                                    f"[DEBUG]: {key} was found and its type is {type(data)}."
+                                )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                    )
+                            return type(data)
+                    else:
+                        with open(self.__DB, mode="r+",
+                                  encoding="utf-8") as toml_file:
+                            data = toml.load(toml_file) or {}
+                            Utils().close_file_delete(toml_file)
+                            if Utils().util_split(key, data):
+                                if Utils().debug:
+                                    sleep(0.5)
+                                    console.log(
+                                        f"[DEBUG]: {key} was found and its type is {type(data)}"
+                                    )
+                                if Utils().logs_enabled:
+                                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                        log_file.write(
+                                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                            + "========================\n"
+                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        )
+                                return type(Utils().util_split(key, data))
                             else:
                                 raise KeyError(
                                     f"\"{key}\" Does not exist in the file")
@@ -466,29 +572,50 @@ class PyBase:
                     if key is None:
                         with open(self.__DB, mode="rb") as bytes_file:
                             data = pickle.load(bytes_file)
-                            self.__close_file_delete(bytes_file)
-                            if self.__debug:
+                            Utils().close_file_delete(bytes_file)
+                            if Utils().debug:
                                 sleep(0.5)
                                 console.log(
                                     f"[DEBUG]: {key} was found and its type is {type(data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                    )
                             return type(data)
                     else:
                         with open(self.__DB, mode='rb') as bytes_file:
                             data = pickle.load(bytes_file) or {}
-                            self.__close_file_delete(bytes_file)
-                            if self.__util_split(key, data):
-                                if self.__debug:
+                            Utils().close_file_delete(bytes_file)
+                            if Utils().util_split(key, data):
+                                if Utils().debug:
                                     sleep(0.5)
                                     console.log(
                                         f"[DEBUG]: {key} was found and its type is {type(data)}"
                                     )
-                                return type(self.__util_split(key, data))
+                                if Utils().logs_enabled:
+                                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                        log_file.write(
+                                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                            + "========================\n"
+                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        )
+                                return type(Utils().util_split(key, data))
                             else:
                                 raise KeyError(
                                     f"\"{key}\" Does not exist in the file")
-            except Exception:
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
 
     def get(self, key: str = None):
         """
@@ -513,7 +640,7 @@ class PyBase:
             A dictionary which contains all the database objects.
         """
 
-        if self.__debug:
+        if Utils().debug:
             sleep(0.5)
             console.log(
                 f"[DEBUG]: Trying to get the key {key} from the database ...")
@@ -523,8 +650,8 @@ class PyBase:
                     with open(self.__DB, mode="r+",
                               encoding="utf-8") as json_file:
                         data = json.load(json_file) or {}
-                        self.__close_file_delete(json_file)
-                        if self.__debug:
+                        Utils().close_file_delete(json_file)
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
                         return data
@@ -532,12 +659,14 @@ class PyBase:
                     with open(self.__DB, mode="r+",
                               encoding="utf-8") as json_file:
                         data = json.load(json_file) or {}
-                        self.__close_file_delete(json_file)
-                        if self.__util_split(key, data):
-                            if self.__debug:
+                        Utils().close_file_delete(json_file)
+                        if Utils().util_split(key, data):
+                            if Utils().debug:
                                 sleep(0.5)
-                                console.log(f"[DEBUG]: {key} was found and its value is {self.__util_split(key, data)}.")
-                            return self.__util_split(key, data)
+                                console.log(
+                                    f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
+                                )
+                            return Utils().util_split(key, data)
                         else:
                             raise KeyError(
                                 f"\"{key}\" Does not exist in the file")
@@ -545,24 +674,49 @@ class PyBase:
                 if key is None:
                     with open(self.__DB, mode='r+',
                               encoding='utf-8') as yaml_file:
-                        data = yaml.load(yaml_file,
-                                         Loader=yaml.FullLoader) or {}
-                        self.__close_file_delete(yaml_file)
-                        if self.__debug:
+                        data = yaml.safe_load(yaml_file) or {}
+                        Utils().close_file_delete(yaml_file)
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
                         return data
                 else:
                     with open(self.__DB, mode='r+',
                               encoding='utf-8') as yaml_file:
-                        data = yaml.load(yaml_file,
-                                         Loader=yaml.FullLoader) or {}
-                        self.__close_file_delete(yaml_file)
-                        if self.__util_split(key, data):
-                            if self.__debug:
+                        data = yaml.safe_load(yaml_file) or {}
+                        Utils().close_file_delete(yaml_file)
+                        if Utils().util_split(key, data):
+                            if Utils().debug:
                                 sleep(0.5)
-                                console.log(f"[DEBUG]: {key} was found and its value is {self.__util_split(key, data)}.")
-                            return self.__util_split(key, data)
+                                console.log(
+                                    f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
+                                )
+                            return Utils().util_split(key, data)
+                        else:
+                            raise KeyError(
+                                f"\"{key}\" Does not exist in the file")
+            elif self.__EXTENSION == ".toml":
+                if key is None:
+                    with open(self.__DB, mode="r+",
+                              encoding="utf-8") as toml_file:
+                        data = toml.load(toml_file) or {}
+                        Utils().close_file_delete(toml_file)
+                        if Utils().debug:
+                            sleep(0.5)
+                            console.log(f"[DEBUG]: {key} was found.")
+                        return data
+                else:
+                    with open(self.__DB, mode="r+",
+                              encoding="utf-8") as toml_file:
+                        data = toml.load(toml_file) or {}
+                        Utils().close_file_delete(toml_file)
+                        if Utils().util_split(key, data):
+                            if Utils().debug:
+                                sleep(0.5)
+                                console.log(
+                                    f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
+                                )
+                            return Utils().util_split(key, data)
                         else:
                             raise KeyError(
                                 f"\"{key}\" Does not exist in the file")
@@ -570,25 +724,34 @@ class PyBase:
                 if key is None:
                     with open(self.__DB, mode="rb") as bytes_file:
                         data = pickle.load(bytes_file)
-                        self.__close_file_delete(bytes_file)
-                        if self.__debug:
+                        Utils().close_file_delete(bytes_file)
+                        if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
                         return data
                 else:
                     with open(self.__DB, mode='rb') as bytes_file:
                         data = pickle.load(bytes_file) or {}
-                        self.__close_file_delete(bytes_file)
-                        if self.__util_split(key, data):
-                            if self.__debug:
+                        Utils().close_file_delete(bytes_file)
+                        if Utils().util_split(key, data):
+                            if Utils().debug:
                                 sleep(0.5)
-                                console.log(f"[DEBUG]: {key} was found and its value is {self.__util_split(key, data)}.")
-                            return self.__util_split(key, data)
+                                console.log(
+                                    f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
+                                )
+                            return Utils().util_split(key, data)
                         else:
                             raise KeyError(
                                 f"\"{key}\" Does not exist in the file")
-        except Exception:
+        except Exception as err:
             console.print_exception()
+            if Utils().logs_enabled:
+                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                    log_file.write(
+                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                        + "========================\n"
+                        + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                    )
 
     def insert(self, content: dict, mode: str = "w"):
         """
@@ -620,10 +783,10 @@ class PyBase:
         if mode != "w" and mode != "a":
             raise ValueError('mode must be "w" or "a".')
         else:
-            if self.__debug:
+            if Utils().debug:
                 sleep(0.5)
                 console.log(
-                    f"[DEBUG]: Trying to insert {content} in mode {mode} inside the database ..."
+                    f"[DEBUG]: Trying to insert {content} in {'write' if mode == 'w' else 'append'} mode inside the database ..."
                 )
             if self.__EXTENSION == '.json':
                 try:
@@ -631,13 +794,12 @@ class PyBase:
                         with open(self.__DB, encoding='utf-8') as json_file:
                             data = json.load(json_file)
                             data.update(content)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as json_file:
+                        with open(self.__DB, encoding='utf-8', mode='w') as json_file:
                             json.dump(data,
                                       json_file,
                                       indent=4,
                                       sort_keys=True)
-                            self.__close_file_delete(json_file)
+                            Utils().close_file_delete(json_file)
                     elif mode == "a":
                         with open(self.__DB, encoding='utf-8') as json_file:
                             data = json.load(json_file)
@@ -650,35 +812,38 @@ class PyBase:
                                         data.update(
                                             {new_key: content[new_key]})
                                         break
-                            self.__close_file_delete(json_file)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as json_file:
+                        with open(self.__DB, encoding='utf-8', mode='w') as json_file:
                             json.dump(data,
                                       json_file,
                                       indent=4,
                                       sort_keys=True)
-                            self.__close_file_delete(json_file)
-                    if self.__debug:
+                            Utils().close_file_delete(json_file)
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
-                except Exception:
+                except Exception as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
             elif self.__EXTENSION == '.yaml':
                 try:
                     if mode == "w":
                         with open(self.__DB, encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                            data = yaml.safe_load(yaml_file)
                             data.update(content)
-                            self.__close_file_delete(yaml_file)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as yaml_file:
+                        with open(self.__DB, encoding='utf-8', mode='w') as yaml_file:
                             yaml.dump(data, yaml_file, sort_keys=True)
-                            self.__close_file_delete(yaml_file)
+                            Utils().close_file_delete(yaml_file)
                     elif mode == "a":
                         with open(self.__DB, encoding='utf-8') as yaml_file:
-                            data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                            data = yaml.safe_load(yaml_file)
                             for new_key in content:
                                 for original_key in data:
                                     if new_key in original_key:
@@ -688,26 +853,70 @@ class PyBase:
                                         data.update(
                                             {new_key: content[new_key]})
                                         break
-                            self.__close_file_delete(yaml_file)
-                        with open(self.__DB, mode='w',
-                                  encoding='utf-8') as yaml_file:
+                        with open(self.__DB, encoding='utf-8', mode='w') as yaml_file:
                             yaml.dump(data, yaml_file, sort_keys=True)
-                            self.__close_file_delete(yaml_file)
-                    if self.__debug:
+                            Utils().close_file_delete(yaml_file)
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
-                except Exception:
+                except Exception as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+            elif self.__EXTENSION == '.toml':
+                try:
+                    if mode == "w":
+                        with open(self.__DB, encoding="utf-8") as toml_file:
+                            data = toml.load(toml_file) or {}
+                            data.update(content)
+                        with open(self.__DB, encoding='utf-8', mode="w") as toml_file:
+                            toml.dump(data, toml_file)
+                            Utils().close_file_delete(toml_file)
+                    if mode == "a":
+                        with open(self.__DB, encoding="utf-8") as toml_file:
+                            data = toml.load(toml_file)
+                            for new_key in content:
+                                for original_key in data:
+                                    if new_key in original_key:
+                                        data[original_key].update(
+                                            content[new_key])
+                                    else:
+                                        data.update(
+                                            {new_key: content[new_key]})
+                                        break
+                        with open(self.__DB, encoding='utf-8', mode='w') as toml_file:
+                            toml.dump(data, toml_file)
+                            Utils().close_file_delete(toml_file)
+                    if Utils().debug:
+                        sleep(0.5)
+                        console.log(
+                            "[DEBUG]: The data was successfully inserted inside the database."
+                        )
+                except Exception as err:
+                    console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
             elif self.__EXTENSION == '.bytes':
                 try:
                     if mode == "w":
                         with open(self.__DB, mode="rb") as bytes_file:
                             data = pickle.load(bytes_file) or {}
                             data.update(content)
-                        with open(self.__DB, mode='wb') as bytes_file:
+                        with open(self.__DB, mode="wb") as bytes_file:
                             pickle.dump(data, bytes_file)
+                            Utils().close_file_delete(bytes_file)
                     if mode == "a":
                         with open(self.__DB, mode="rb") as bytes_file:
                             data = pickle.load(bytes_file)
@@ -720,18 +929,25 @@ class PyBase:
                                         data.update(
                                             {new_key: content[new_key]})
                                         break
-                            self.__close_file_delete(bytes_file)
                         with open(self.__DB, mode="wb") as bytes_file:
                             pickle.dump(data, bytes_file)
-                    if self.__debug:
+                            Utils().close_file_delete(bytes_file)
+                    if Utils().debug:
                         sleep(0.5)
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
-                except Exception:
+                except Exception as err:
                     console.print_exception()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
 
-    def push(self, key: str=None, element=None):
+    def push(self, key: str = None, element=None):
         """
         Push a new element to an Array (list) inside the database.
 
@@ -756,67 +972,127 @@ class PyBase:
 
         if type(key) is not str:
             raise TypeError('key must be a String')
-        if self.__debug:
+        if Utils().debug:
             sleep(0.5)
-            console.log(
-                f"[DEBUG]: Trying to push {element} into {key} ..."
-            )
+            console.log(f"[DEBUG]: Trying to push {element} into {key} ...")
         if self.__EXTENSION == ".json":
             try:
                 with open(self.__DB, encoding="utf-8") as json_file:
                     data = json.load(json_file)
-                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:
-                        if self.__debug:
+                    if Utils().util_split(key, data) or Utils().util_split(
+                            key, data) is None or Utils().util_split(
+                                key, data) == []:
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
-                        self.__util_split(key, data).append(element)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to push ..."
+                            )
+                        Utils().util_split(key, data).append(element)
                     else:
                         raise KeyError(
-                            f"\"{key}\" Does not exist in the file or is not a list")
+                            f"\"{key}\" Does not exist in the file or is not a list"
+                        )
                 with open(self.__DB, encoding="utf-8", mode="w") as json_file:
-                    json.dump(data,
-                              json_file,
-                              indent=4,
-                              sort_keys=True)
-                    self.__close_file_delete(json_file)
-            except Exception:
+                    json.dump(data, json_file, indent=4, sort_keys=True)
+                    Utils().close_file_delete(json_file)
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
         elif self.__EXTENSION == ".yaml":
             try:
                 with open(self.__DB, encoding="utf-8") as yaml_file:
-                    data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:
-                        if self.__debug:
+                    data = yaml.safe_load(yaml_file)
+                    if Utils().util_split(key, data) or Utils().util_split(
+                            key, data) is None or Utils().util_split(
+                                key, data) == []:
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
-                        self.__util_split(key, data).append(element)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to push ..."
+                            )
+                        Utils().util_split(key, data).append(element)
                     else:
                         raise KeyError(
-                            f"\"{key}\" Does not exist in the file or is not a list")
+                            f"\"{key}\" Does not exist in the file or is not a list"
+                        )
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
-                    self.__close_file_delete(yaml_file)
-            except Exception:
+                    Utils().close_file_delete(yaml_file)
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
+        elif self.__EXTENSION == ".toml":
+            try:
+                with open(self.__DB, encoding="utf-8") as toml_file:
+                    data = toml.load(toml_file)
+                    if Utils().util_split(key, data) or Utils().util_split(
+                            key, data) is None or Utils().util_split(
+                                key, data) == []:
+                        if Utils().debug:
+                            sleep(0.5)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to push ..."
+                            )
+                        Utils().util_split(key, data).append(element)
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file or is not a list"
+                        )
+                with open(self.__DB, encoding="utf-8", mode="w") as toml_file:
+                    toml.dump(data, toml_file)
+                    Utils().close_file_delete(toml_file)
+            except Exception as err:
+                console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
         elif self.__EXTENSION == ".bytes":
             try:
                 with open(self.__DB) as bytes_file:
                     data = pickle.load(bytes_file)
-                    if self.__util_split(key, data) or self.__util_split(key, data) is None or self.__util_split(key, data) == []:                   
-                        if self.__debug:
+                    if Utils().util_split(key, data) or Utils().util_split(
+                            key, data) is None or Utils().util_split(
+                                key, data) == []:
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to push ...")
-                        self.__util_split(key, data).append(element)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to push ..."
+                            )
+                        Utils().util_split(key, data).append(element)
                     else:
                         raise KeyError(
-                            f"\"{key}\" Does not exist in the file or is not a list")
+                            f"\"{key}\" Does not exist in the file or is not a list"
+                        )
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
-                    self.__close_file_delete(bytes_file)
-            except Exception:
+                    Utils().close_file_delete(bytes_file)
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
 
-    def update(self, key: str=None, new_value=None):
+    def update(self, key: str = None, new_value=None):
         """
         Update the value of a key inside the database.
 
@@ -839,133 +1115,108 @@ class PyBase:
 
         if type(key) is not str:
             raise TypeError('key must be a String')
-        if self.__debug:
+        if Utils().debug:
             sleep(0.5)
-            console.log(
-                f"[DEBUG]: Trying to change the value of {key} ..."
-            )
+            console.log(f"[DEBUG]: Trying to change the value of {key} ...")
         if self.__EXTENSION == ".json":
             try:
                 with open(self.__DB, encoding="utf-8") as json_file:
                     data = json.load(json_file)
-                    if self.__util_split(key, data):
-                        if self.__debug:
+                    if Utils().util_split(key, data):
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
-                        obj = self.__util_split(key, data)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            )
+                        obj = Utils().util_split(key, data)
                         obj = new_value
                     else:
                         raise KeyError(
                             f"\"{key}\" Does not exist in the file.")
                 with open(self.__DB, encoding="utf-8", mode="w") as json_file:
-                    json.dump(data,
-                              json_file,
-                              indent=4,
-                              sort_keys=True)
-                    self.__close_file_delete(json_file)
-            except Exception:
+                    json.dump(data, json_file, indent=4, sort_keys=True)
+                    Utils().close_file_delete(json_file)
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
         elif self.__EXTENSION == ".yaml":
             try:
                 with open(self.__DB, encoding="utf-8") as yaml_file:
-                    data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-                    if self.__util_split(key, data):
-                        if self.__debug:
+                    data = yaml.safe_load(yaml_file)
+                    if Utils().util_split(key, data):
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
-                        obj = self.__util_split(key, data)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            )
+                        obj = Utils().util_split(key, data)
                         obj = new_value
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
-                    self.__close_file_delete(yaml_file)
-            except Exception:
+                    Utils().close_file_delete(yaml_file)
+            except Exception as err:
                 console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
+        elif self.__EXTENSION == ".toml":
+            try:
+                with open(self.__DB, encoding="utf-8") as toml_file:
+                    data = toml.load(toml_file)
+                    if Utils().util_split(key, data):
+                        if Utils().debug:
+                            sleep(0.5)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            )
+                        obj = Utils().util_split(key, data)
+                        obj = new_value
+                    else:
+                        raise KeyError(
+                            f"\"{key}\" Does not exist in the file.")
+                with open(self.__DB, encoding="utf-8", mode="w") as toml_file:
+                    toml.dump(data, toml_file)
+                    Utils().close_file_delete(toml_file)
+            except Exception as err:
+                console.print_exception()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
         elif self.__EXTENSION == ".bytes":
             try:
                 with open(self.__DB, mode="rb") as bytes_file:
                     data = pickle.load(bytes_file)
-                    if self.__util_split(key, data):
-                        if self.__debug:
+                    if Utils().util_split(key, data):
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found. Trying to set the new value ...")
-                        obj = self.__util_split(key, data)
+                            console.log(
+                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            )
+                        obj = Utils().util_split(key, data)
                         obj = new_value
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
-                    self.__close_file_delete(bytes_file)
-            except Exception:
+                    Utils().close_file_delete(bytes_file)
+            except Exception as err:
                 console.print_exception()
-
-    # ---------- Internal methods ----------
-    def __close_file_delete(self, file):
-        """
-        Method only for the class, close the open file and erase it from memory (slightly better performance)
-        ...
-
-        Parameters
-        ----------
-        file
-            an open (or closed) file
-
-        Raises
-        ------
-        """
-        try:
-            close_file = file.close()
-            if close_file is None:
-                del (file)
-        except Exception:
-            console.print_exception()
-
-    def __util_split(self, key: str, data: dict):
-        """
-        Method only for the class, split dict from key specific
-        ...
-
-        Parameters
-        ----------
-        key : str
-            The key of the dictionary
-        data : dict
-            The content.
-
-        Raises
-        ------
-        TypeError
-            key is not a str or data is not a dict
-
-        """
-        if type(key) != str:
-            raise TypeError(f"the type of {key} is invalid.")
-        elif type(data) != dict:
-            raise TypeError(f'data "{data}" must be a dictionary.')
-
-        args = key.split(".")
-        dataObject = data
-        for keys in args:
-            if keys not in dataObject.keys():
-                return False
-            elif keys == args[len(args) - 1]:
-                return dataObject[keys]
-            else:
-                dataObject = dataObject[keys]
-
-    def __send_stats(self):
-        """
-        Method to send statistics of usage.
-        """
-
-        pybase_process   = psutil.Process(os.getpid())                 # Get PyBase process ID
-        pybase_cpu_usage = pybase_process.cpu_percent(interval=1.0)    # CPU Usage in percentage
-        pybase_ram_usage = round(pybase_process.memory_percent(), 1)   # Memory usage in percentage
-        console.log(f"""[DEBUG]: Showing PyBase Usage statistics ...
-         CPU Usage: {pybase_cpu_usage}%
-         RAM Usage: {pybase_ram_usage}%""")
-
-    def __interval(self, func, sec):
-        def func_wrapper():
-            self.__interval(func, sec)
-            func()
-        t = threading.Timer(sec, func_wrapper)
-        t.start()
-        return t
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )

@@ -1,20 +1,19 @@
 # PyBase - DB Manager
 [![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
-![Issues](https://img.shields.io/github/issues/NTBBloodbath/PyBase)
-![Forks](https://img.shields.io/github/forks/NTBBloodbath/PyBase)
-![License](https://img.shields.io/github/license/NTBBloodbath/PyBase)
+![License](https://img.shields.io/pypi/l/pybase-db)
 
 ![PyBase Logo](./res/pybase-logo.png)
 
-PyBase is a DataBase Manager for JSON, YAML, Bytes and SQLite.
+PyBase is a DataBase Manager for multiple filetypes including SQLite3.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
 ------
 
 ## Why PyBase?
-**If you want to store** static **data** (JSON, YAML, Bytes) **or store a database in SQLite**,
+**If you want to store** static **data** (JSON, YAML, TOML, Bytes) **or store a database in SQLite3**,
 **the best thing would be to use an administrator that simplifies your tasks and
 helps you with a good organization and efficiently.**
 
@@ -53,11 +52,11 @@ python3 -m pip install -U dist/pybase_db-version-py3-none-any.whl
 This is a brief example of the methods that PyBase currently has.
 ```py
 # Lets import PyBase Class from PyBase Package
-from pybase_db.pybase_db import PyBase
+from pybase_db import PyBase
 
 # Lets define our database name and format (with default db_path).
 # db_type isn't case sensitive. You can use JSON and json and it'll be valid.
-db = PyBase("example", "JSON", debug=True, stats=True)  # => ./example.json
+db = PyBase(database="example", db_type="JSON")  # => ./example.json
 
 # Lets define and add some content to our database.
 pybase_info = {"pybase": "awesomeness", "version": "1.0.0"}

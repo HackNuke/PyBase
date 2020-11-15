@@ -240,6 +240,11 @@ class PySQL:
                 console.log(
                     f'[DEBUG]: Using SQLite3 version v{sqlite3.version}')
                 sleep(1)
+        if self.__stats:
+            try:
+                self.__interval(self.__send_stats, 120)
+            except Exception:
+                console.print_exception()
 
     def delete(self, table: str, objects: dict = None):
         """
@@ -638,3 +643,24 @@ class PySQL:
                         console.log("[DEBUG]:", rows)
 
                     return rows
+
+    # ---------- Internal methods ----------
+    def __send_stats(self):
+        """
+        Method to send statistics of usage.
+        """
+
+        pybase_process   = psutil.Process(os.getpid())                 # Get PyBase process ID
+        pybase_cpu_usage = pybase_process.cpu_percent(interval=1.0)    # CPU Usage in percentage
+        pybase_ram_usage = round(pybase_process.memory_percent(), 1)   # Memory usage in percentage
+        console.log(f"""[DEBUG]: Showing PyBase (PySQL) Usage statistics ...
+         CPU Usage: {pybase_cpu_usage}%
+         RAM Usage: {pybase_ram_usage}%""")
+
+    def __interval(self, func, sec):
+        def func_wrapper():
+            self.__interval(func, sec)
+            func()
+        t = threading.Timer(sec, func_wrapper)
+        t.start()
+        return t

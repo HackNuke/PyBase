@@ -1,7 +1,20 @@
+# === PyBase Configuration (for PyBase v1.0.0) ===
+#
+# This is the configuration file for PyBase
+# and must be placed into the ROOT directory of your project.
+# NOTE: this configuration may change in future versions.
+#
+# For more information about the configuration file please see
+# https://ntbbloodbath.gitlab.io/PyBase/getting-started/#configuration-file
+
 debugging:
-    debug: true       # Default: false
-    stats: false      # Default: false
+    enabled: true           # Default: false
+    stats: 
+        enabled: true       # Default: false
+        interval: "2m"      # Default: 2m
 
 logs:
-    enabled: true     # Default: false
-    location: "./tmp" # Default: ROOT_DIR/tmp -> ./tmp
+    enabled: true           # Default: true
+    location: "./tmp"       # Default: ROOT_DIR/tmp -> ./tmp
+    life_cycle: "7d"        # Default: 7d
+    # life_cycle can be: w -> week(s), d -> day(s), h -> hour(s), m -> minute(s)

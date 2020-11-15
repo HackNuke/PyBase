@@ -2,11 +2,11 @@
 # Usage example file (for v1.0.0).
 
 # Lets import PyBase Class from PyBase Package
-from pybase_db import PyBase
+from pybase_db.pybase_db import PyBase
 
 # Lets define our database name and format (with default db_path).
 # db_type isn't case sensitive. You can use JSON and json and it'll be valid.
-db = PyBase("example", "JSON", debug=True, stats=True)  # => ./example.json
+db = PyBase("example", "JSON")  # => ./example.json
 
 # Lets define and add some content to our database.
 pybase_info = {"pybase": "awesomeness", "version": "1.0.0"}
