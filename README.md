@@ -23,7 +23,7 @@ just one method, and simplifies the task of manipulating their data!**
 ------
 
 ## Contribuitors
-- [Danny2105](https://github.com/Danny2105)
+- [Danny2105](https://gitlab.com/Danny2105)
 
 ------
 
@@ -41,6 +41,7 @@ python3 -m pip install -U --pre pybase_db
 # Available branches:
 #   • master (recommended)
 #   • development (unstable releases)
+# NOTE: this installation mode will not install PyBase dependencies!
 python3 -m pip install -U git+https://gitlab.com/NTBBloodbath/PyBase@branch
 ```
 
