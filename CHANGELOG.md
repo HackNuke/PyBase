@@ -1,4 +1,4 @@
-# PyBase — Changelog
+# Changelog
 This is a detailed and complete changelog of the different versions of PyBase.
 > Notes: 
 > 
@@ -30,12 +30,12 @@ This is a detailed and complete changelog of the different versions of PyBase.
 > 
 > 1. Since the documentation will change and isn't ready yet,
 > you can see the changes by comparing the usage example of
-> the [development](https://gitlab.com/NTBBloodbath/PyBase/-/development/examples/basic_usage_example.py) branch with that of [master](https://gitlab.com/NTBBloodbath/PyBase/-/master/examples/basic_usage.py).
+> the [development](https://github.com/NTBBloodbath/PyBase/blob/development/examples/basic_usage_example.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
 > 
 > 2. Since version 1.0.0 is under development, it isn't ready
 > yet and therefore this changelog notes may change and if there's
 > no release yet with the newest changes, you'll have to compile it yourself.
-> See [Building](https://gitlab.com/NTBBloodbath/PyBase/-/tree/development#building).
+> See [Building](https://github.com/NTBBloodbath/PyBase#building).
 > 
 > 3. Statistics are currently sent every two minutes by default.
 
