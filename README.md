@@ -1,27 +1,23 @@
-# PyBase - DB Manager
-[![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![PyBase](https://socialify.git.ci/NTBBloodbath/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Light)
+
+![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
-![Issues](https://img.shields.io/github/issues/NTBBloodbath/PyBase)
-![Forks](https://img.shields.io/github/forks/NTBBloodbath/PyBase)
-![License](https://img.shields.io/github/license/NTBBloodbath/PyBase)
+[![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![License](https://img.shields.io/pypi/l/pybase-db)
 
-![PyBase Logo](./res/pybase-logo.png)
-
-PyBase is a DataBase Manager for JSON, YAML, Bytes and SQLite.
-
-It's focused on the ease and effectiveness for the administration of databases.
+PyBase is focused on the ease and effectiveness for the administration of databases.
 
 > **PyBase is actually on Beta phase, may contain bugs.**
 
 ------
 
 ## Why PyBase?
-If you want to store static data (JSON, YAML) or store a database in SQLite,
-the best thing would be to use an administrator that simplifies your tasks and
-helps you with a good organization and efficiently.
+**If you want to store static data** (JSON, YAML, Bytes) **or store a database in SQLite,**
+**the best thing would be to use an administrator that simplifies your tasks and
+helps you with a good organization and efficiently.**
 
-PyBase does exactly that, allows you to create such databases with
-just one method, and simplifies the task of manipulating their data!
+**PyBase does exactly that, allows you to create such databases with
+just one method, and simplifies the task of manipulating their data!**
 
 ------
 
@@ -34,7 +30,18 @@ just one method, and simplifies the task of manipulating their data!
 ## Installation
 PyBase requires Python 3.x and can be installed through `pip` with the following command.
 ```sh
-pip install pybase_db
+# Stable version
+python3 -m pip install -U pybase_db
+
+# Pre-release (Development) version
+python3 -m pip install -U --pre pybase_db
+
+# From github's latest commit
+# Available branches:
+#   • master (recommended)
+#   • development (unstable releases)
+# NOTE: this installation mode will not install PyBase dependencies!
+python3 -m pip install -U git+https://github.com/NTBBloodbath/PyBase@branch
 ```
 
 ## Usage example
@@ -70,7 +77,7 @@ print(db.get("version")) #=> '0.3.0'
 
 ## Documentation
 You can see the PyBase documentation through the `help()` function of the REPL
-and through the [official documentation site](https://ntbbloodbath.github.io/PyBase).
+and through the [official documentation site](https://pybase.github.io/).
 
 ------
 
