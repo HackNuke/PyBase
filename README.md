@@ -1,14 +1,9 @@
-# PyBase - DB Manager
-![Issues](https://img.shields.io/github/issues/NTBBloodbath/PyBase)
-![Forks](https://img.shields.io/github/forks/NTBBloodbath/PyBase)
+![PyBase](https://socialify.git.ci/PyBase/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
 [![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
-
 ![License](https://img.shields.io/pypi/l/pybase-db)
-
-![PyBase](https://socialify.git.ci/NTBBloodbath/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
 PyBase is a DataBase Manager for multiple filetypes including SQLite3.
 
