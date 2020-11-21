@@ -1,10 +1,14 @@
 # PyBase - DB Manager
-[![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![Issues](https://img.shields.io/github/issues/NTBBloodbath/PyBase)
+![Forks](https://img.shields.io/github/forks/NTBBloodbath/PyBase)
+
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
+[![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+
 ![License](https://img.shields.io/pypi/l/pybase-db)
 
-![PyBase Logo](./res/pybase-logo.png)
+![PyBase](https://socialify.git.ci/NTBBloodbath/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
 PyBase is a DataBase Manager for multiple filetypes including SQLite3.
 
@@ -23,7 +27,7 @@ just one method, and simplifies the task of manipulating their data!**
 ------
 
 ## Contribuitors
-- [Danny2105](https://gitlab.com/Danny2105)
+- [Danny2105](https://github.com/Danny2105)
 
 ------
 
@@ -37,12 +41,12 @@ python3 -m pip install -U pybase_db
 # Pre-release (Development) version
 python3 -m pip install -U --pre pybase_db
 
-# From gitlab's latest commit
+# From github's latest commit
 # Available branches:
 #   • master (recommended)
 #   • development (unstable releases)
 # NOTE: this installation mode will not install PyBase dependencies!
-python3 -m pip install -U git+https://gitlab.com/NTBBloodbath/PyBase@branch
+python3 -m pip install -U git+https://github.com/NTBBloodbath/PyBase@branch
 ```
 
 ### Building
