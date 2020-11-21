@@ -44,6 +44,16 @@ python3 -m pip install -U --pre pybase_db
 python3 -m pip install -U git+https://github.com/NTBBloodbath/PyBase@branch
 ```
 
+### Building
+The development branch changes aren't compiled and uploaded to Pypi every time,
+so you must compile a wheel yourself to test the experimental stuff if the newest
+changes aren't uploaded to Pypi.
+```sh
+python3 setup.py bdist_wheel
+
+python3 -m pip install -U dist/pybase_db-version-py3-none-any.whl
+```
+
 ## Usage example
 This is a brief example of the methods that PyBase currently has.
 ```py
