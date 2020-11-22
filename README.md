@@ -3,6 +3,7 @@
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
 [![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![Discord](https://img.shields.io/discord/779841556215627776?color=008aff&label=support&logo=discord&style=flat-square)
 ![License](https://img.shields.io/pypi/l/pybase-db)
 
 PyBase is a DataBase Manager for multiple filetypes including SQLite3.
@@ -12,7 +13,7 @@ It's focused on the ease and effectiveness for the administration of databases.
 ------
 
 ## Why PyBase?
-**If you want to store** static **data** (JSON, YAML, TOML, Bytes) **or store a database in SQLite3**,
+**If you want to store static data** (JSON, YAML, TOML, Bytes) **or store a database in SQLite3**,
 **the best thing would be to use an administrator that simplifies your tasks and
 helps you with a good organization and efficiently.**
 
