@@ -3,6 +3,7 @@
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
 [![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
+![Discord](https://img.shields.io/discord/779841556215627776?color=008aff&label=support&logo=discord&style=flat-square)
 ![License](https://img.shields.io/pypi/l/pybase-db)
 
 PyBase is focused on the ease and effectiveness for the administration of databases.
