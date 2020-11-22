@@ -41,7 +41,7 @@ python3 -m pip install -U --pre pybase_db
 #   • master (recommended)
 #   • development (unstable releases)
 # NOTE: this installation mode will not install PyBase dependencies!
-python3 -m pip install -U git+https://github.com/NTBBloodbath/PyBase@branch
+python3 -m pip install -U git+https://github.com/PyBase/PyBase@branch
 ```
 
 ### Building
