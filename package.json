@@ -1,0 +1,26 @@
+{
+  "name": "PyBase",
+  "version": "0.1.0",
+  "description": "Python DataBase Manager for multiple filetypes including SQLite3.",
+  "main": "index.js",
+  "authors": {
+    "name": "NTBBloodbath",
+    "email": "bloodbathalchemist@protonmail.com"
+  },
+  "repository": "PyBase/PyBase",
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.7.1"
+  },
+  "dependencies": {
+    "@vuepress/plugin-back-to-top": "^1.7.1",
+    "markdown-it-attrs": "^3.0.3",
+    "markdown-it-custom-header-link": "^1.0.5",
+    "markdown-it-tags": "^1.0.2",
+    "moment": "^2.29.1"
+  }
+}
