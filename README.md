@@ -1,6 +1,6 @@
 ![PyBase](https://socialify.git.ci/PyBase/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/6a03656b-b3f4-4a90-a52d-9f8d176d6a28/deploy-status)]((https://app.netlify.com/sites/pybase/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/6a03656b-b3f4-4a90-a52d-9f8d176d6a28/deploy-status)](https://app.netlify.com/sites/pybase/deploys)
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
 ![Version](https://img.shields.io/pypi/v/pybase-db?color=green&label=version)
 [![Downloads](https://pepy.tech/badge/pybase-db)](https://pepy.tech/project/pybase-db)
