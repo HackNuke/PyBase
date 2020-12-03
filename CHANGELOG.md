@@ -30,19 +30,19 @@ This is a detailed and complete changelog of the different versions of PyBase.
 > 
 > 1. Since the documentation will change and isn't ready yet,
 > you can see the changes by comparing the usage example of
-> the [development](https://github.com/NTBBloodbath/PyBase/blob/development/examples/basic_usage_example.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
+> the [development](https://github.com/PyBase/PyBase/blob/development/examples/basic_usage_example.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
 > 
 > 2. Since version 1.0.0 is under development, it isn't ready
 > yet and therefore this changelog notes may change and if there's
 > no release yet with the newest changes, you'll have to compile it yourself.
-> See [Building](https://github.com/NTBBloodbath/PyBase#building).
+> See [Building](https://github.com/PyBase/PyBase#building).
 > 
 > 3. Statistics are currently sent every two minutes by default.
 
 ---
 
-- [v0.4.0](https://github.com/NTBBloodbath/PyBase/releases/tag/v0.4.0)
-    - Added `get` method, see [docs](https://ntbbloodbath.github.io/PyBase/docs/0.4/#gettable-str-objects-dict--none) for usage example (PySQL class)
+- [v0.4.0](https://github.com/PyBase/PyBase/releases/tag/v0.4.0)
+    - Added `get` method, see [docs](https://pybase.netlify.app/docs/v0.4.1.html#pysql-get) for usage example (PySQL class)
     - Bug fixes when adding lists inside the DB (PySQL class)
     - Logs changed to rich library logs (PyBase and PySQL classes)
     - Traceback changed to rich library traceback (PyBase and PySQL classes)
