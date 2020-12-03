@@ -144,7 +144,7 @@ updating        took 0.004 seconds to complete its execution.
 
 ## Documentation
 You can see the PyBase documentation through the `help()` function of the REPL
-and through the [official documentation site](https://pybase.github.io/docs/).
+and through the [official documentation site](https://pybase.netlify.app/docs/).
 
 ## Changelog
 You can see the PyBase changelog [here](./CHANGELOG.md)
