@@ -452,7 +452,7 @@ class PyBase:
         except Exception as err:
             console.print_exception()
     
-    def has(self, key = str: None):
+    def has(self, key: str = None):
         
         """
         Read the database file established in PyBase init to check availability of its objects or values ••using the key.
@@ -464,19 +464,14 @@ class PyBase:
             The key of the first value of the dictionary
             Default: None
 
-        Raises
-        ------
-        KeyError
-            When the key does not exist in the specified file type
-
         Returns
         -------
-        dict 
-            A dictionary which contains all the database objects.
+        bool 
+            A value that indicates whether the data is found or not
         """
 
         try:
-            this.get(key)
+            self.get(key)
             return True
         except Exception as err:
             return False
