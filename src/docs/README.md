@@ -10,7 +10,7 @@ tags:
 
 This is the PyBase documentation separated by versions.
 
-> **Latest PyBase version and status:** v1.0.0.dev2 (Development).
+> **Latest PyBase version and status:** v1.0.0.dev3 (Development).
 
 ::: tip
 If you need help getting started with PyBase, go to [Guide](/guide/).
