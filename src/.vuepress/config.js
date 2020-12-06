@@ -70,7 +70,7 @@ module.exports = {
           collapsable: true,
           children: [
             '',
-            'v1.0.0.dev1',
+            'v1.0.0',
             'v0.4.1',
           ]
         }
