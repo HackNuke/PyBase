@@ -40,6 +40,8 @@ class PyBase:
         Fetch a key inside the database established in PyBase init.
     get(key: str=None)
         Read the database file established in PyBase init to to access its objects.
+    has(key: str=None)
+        Read the database file established in PyBase init to check availability of its objects
     insert(content: dict, mode: str="w")
         Insert a dictionary content inside the given database file.
     push(key: str=None, element=None)
@@ -799,6 +801,30 @@ class PyBase:
                         + "========================\n"
                         + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                     )
+
+
+    def has(self, key: str = None):     
+        """
+        Read the database file established in PyBase init to check availability of its objects or values ••using the key.
+
+        ...
+        Parameters
+        ----------
+        key : str
+            The key of the first value of the dictionary
+            Default: None
+
+        Returns
+        -------
+        bool 
+            A value that indicates whether the data is found or not
+        """
+
+        try:
+            self.get(key)
+            return True
+        except Exception as err:
+            return False
 
 
     def insert(self, content: dict, mode: str = "w"):
