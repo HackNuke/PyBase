@@ -25,6 +25,7 @@ just one method, and simplifies the task of manipulating their data!**
 
 ## Contribuitors
 - [Danny2105](https://github.com/Danny2105)
+- [acarkh](https://github.com/acarkh)
 
 ------
 
