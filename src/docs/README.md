@@ -1,5 +1,5 @@
 ---
-next: ./v1.0.0.dev1
+next: ./v1.0.0
 tags:
   - documentation
 ---
@@ -10,7 +10,7 @@ tags:
 
 This is the PyBase documentation separated by versions.
 
-> **Latest PyBase version and status:** v1.0.0.dev1 (Development).
+> **Latest PyBase version and status:** v1.0.0.dev2 (Development).
 
 ::: tip
 If you need help getting started with PyBase, go to [Guide](/guide/).
@@ -19,7 +19,7 @@ If you need help getting started with PyBase, go to [Guide](/guide/).
 ------
 
 - Versions:
-  - [1.0.0.dev1 (Development)](/docs/v1.0.0.dev1/)
+  - [1.0.0.dev2 (Development)](/docs/v1.0.0/)
   - [0.4.1 (Stable)](/docs/v0.4.1/)
 
 ::: danger
