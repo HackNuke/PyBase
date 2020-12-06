@@ -71,6 +71,7 @@ module.exports = {
           children: [
             '',
             'v1.0.0',
+            'v0.5.0',
             'v0.4.1',
           ]
         }
