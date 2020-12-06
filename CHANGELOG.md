@@ -13,7 +13,7 @@ This is a detailed and complete changelog of the different versions of PyBase.
     - Added optionally logs. Now you can have a register of what was happening to your database (enabled by default).
     - Config file was added (**see [example config](./examples/pybase.yaml)**). Now debugging (debug, stats) and logs are configurations instead of parameters.
     - `exists` method has been removed because it was considered useless (PyBase Class).
-    - `fetch` method has been changed to be simpler and more dev-friendly (PyBase Class)!
+    - `fetch` and `delete` methods has been changed to be simpler and more dev-friendly (PyBase Class)!
   - Another changes under the hood and bug fixes:
     - Added full support for TOML files (PyBase Class).
     - Added `push` method. Push a item into a list inside your database without having a headache (PyBase Class)!
@@ -27,22 +27,25 @@ This is a detailed and complete changelog of the different versions of PyBase.
     - Added `psutil` to dependencies.
 
 > **Notes about v1.0.0**:
-> 
-> 1. Since the documentation will change and isn't ready yet,
-> you can see the changes by comparing the usage example of
-> the [development](https://github.com/PyBase/PyBase/blob/development/examples/basic_usage_example.py) branch with that of [master](https://github.com/NTBBloodbath/PyBase/blob/master/examples/basic_usage.py).
-> 
-> 2. Since version 1.0.0 is under development, it isn't ready
+>  
+> 1. Since version 1.0.0 is under development, it isn't ready
 > yet and therefore this changelog notes may change and if there's
 > no release yet with the newest changes, you'll have to compile it yourself.
 > See [Building](https://github.com/PyBase/PyBase#building).
 > 
-> 3. Statistics are currently sent every two minutes by default.
+> 2. Statistics are currently sent every two minutes by default. You can change the time in the config file.
+> 
+> 3. Logs files are currently deleted after 7 days by default. You can change the life cycle in the config file.
+
+---
+
+- [v0.5.0](https://github.com/PyBase/PyBase/releases/tag/v0.5.0)
+    - Added `has` method, see [docs](https://pybase.netlify.app/docs/v0.5.0.html#pybase-has) (PyBase Class)
 
 ---
 
 - [v0.4.0](https://github.com/PyBase/PyBase/releases/tag/v0.4.0)
-    - Added `get` method, see [docs](https://pybase.netlify.app/docs/v0.4.1.html#pysql-get) for usage example (PySQL class)
+    - Added `get` method, see [docs](https://pybase.netlify.app/docs/v0.4.1.html#pysql-get) (PySQL class)
     - Bug fixes when adding lists inside the DB (PySQL class)
     - Logs changed to rich library logs (PyBase and PySQL classes)
     - Traceback changed to rich library traceback (PyBase and PySQL classes)

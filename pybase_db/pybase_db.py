@@ -284,33 +284,34 @@ class PyBase:
                             + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                         )
 
-    def delete(self, obj):
+
+    def delete(self, key: str = None):
         """
-        Delete a object from the database established in PyBase init.
+        Delete a key from the database established in PyBase init.
 
         ...
 
         Parameters
         ----------
-        obj
-            The object which will be deleted from the database.
+        key : str
+            The key which will be deleted from the database.
 
         Raises
         ------
         KeyError
             If key isn't found.
         ValueError
-            If obj doesn't have a value (is equal to zero or None).
+            If key doesn't have a value (is equal to zero or None).
         """
 
-        if len(obj) == 0 or obj is None:
-            raise ValueError('obj must have a value (str, int, float, bool).')
+        if len(key) == 0 or key is None:
+            raise ValueError('key must have a value (str, int, float, bool).')
         else:
             if self.__EXTENSION == '.json':
                 try:
                     with open(self.__DB, encoding='utf-8') as json_file:
                         data = json.load(json_file)
-                        data.pop(obj)
+                        data = Utils().util_split_delete(key, data)
                     with open(self.__DB, encoding="utf-8", mode="w") as json_file:
                         json.dump(data, json_file, indent=4, sort_keys=True)
                         Utils().close_file_delete(json_file)
@@ -319,7 +320,7 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n"
-                                + f"{obj} key have been removed from the database.\n\n"
+                                + f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
                     console.print_exception()
@@ -334,7 +335,7 @@ class PyBase:
                 try:
                     with open(self.__DB, encoding='utf-8') as yaml_file:
                         data = yaml.safe_load(yaml_file)
-                        data.pop(obj)
+                        data = Utils().util_split_delete(key, data)
                     with open(self.__DB, encoding='utf-8', mode='w') as yaml_file:
                         yaml.dump(data, yaml_file, sort_keys=True)
                         Utils().close_file_delete(yaml_file)
@@ -343,7 +344,7 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n"
-                                + f"{obj} key have been removed from the database.\n\n"
+                                + f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
                     console.print_exception()
@@ -358,7 +359,7 @@ class PyBase:
                 try:
                     with open(self.__DB, encoding='utf-8') as toml_file:
                         data = toml.load(toml_file)
-                        data.pop(obj)
+                        data = Utils().util_split_delete(key, data)
                     with open(self.__DB, encoding='utf-8', mode='w') as toml_file:
                         toml.dump(data, toml_file)
                         Utils().close_file_delete(toml_file)
@@ -367,7 +368,7 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n"
-                                + f"{obj} key have been removed from the database.\n\n"
+                                + f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
                     console.print_exception()
@@ -382,7 +383,7 @@ class PyBase:
                 try:
                     with open(self.__DB, mode="rb") as bytes_file:
                         data = pickle.load(bytes_file)
-                        data.pop(obj)
+                        data = Utils().util_split_delete(key, data)
                     with open(self.__DB, mode="wb") as bytes_file:
                         pickle.dump(data, bytes_file)
                         Utils().close_file_delete(bytes_file)
@@ -391,7 +392,7 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n"
-                                + f"{obj} key have been removed from the database.\n\n"
+                                + f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
                     console.print_exception()
@@ -613,6 +614,7 @@ class PyBase:
                             + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                         )
 
+
     def get(self, key: str = None):
         """
         Read the database file established in PyBase init to access its objects or values ​​using the key.
@@ -652,7 +654,7 @@ class PyBase:
                                 log_file.write(
                                     f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                     + "========================\n"
-                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                    + f"All keys have been obtained from the database.\n{data}\n\n"
                                 )
                         return data
                 else:
@@ -690,7 +692,7 @@ class PyBase:
                                 log_file.write(
                                     f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                     + "========================\n"
-                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                    + f"All keys have been obtained from the database.\n{data}\n\n"
                                 )
                         return data
                 else:
@@ -728,7 +730,7 @@ class PyBase:
                                 log_file.write(
                                     f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                     + "========================\n"
-                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                    + f"All keys have been obtained from the database.\n{data}\n\n"
                                 )
                         return data
                 else:
@@ -765,7 +767,7 @@ class PyBase:
                                 log_file.write(
                                     f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                     + "========================\n"
-                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                    + f"All keys have been obtained from the database.\n{data}\n\n"
                                 )
                         return data
                 else:
@@ -797,6 +799,7 @@ class PyBase:
                         + "========================\n"
                         + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                     )
+
 
     def insert(self, content: dict, mode: str = "w"):
         """
@@ -1020,6 +1023,7 @@ class PyBase:
                                 + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                             )
 
+
     def push(self, key: str = None, element=None):
         """
         Push a new element to an Array (list) inside the database.
@@ -1193,6 +1197,7 @@ class PyBase:
                             + f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                         )
 
+
     def update(self, key: str = None, new_value=None):
         """
         Update the value of a key inside the database.
@@ -1266,6 +1271,7 @@ class PyBase:
                             )
                         obj = Utils().util_split(key, data)
                         obj = new_value
+                        del (obj)
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
                     Utils().close_file_delete(yaml_file)
@@ -1297,6 +1303,7 @@ class PyBase:
                             )
                         obj = Utils().util_split(key, data)
                         obj = new_value
+                        del (obj)
                     else:
                         raise KeyError(
                             f"\"{key}\" Does not exist in the file.")
@@ -1331,6 +1338,7 @@ class PyBase:
                             )
                         obj = Utils().util_split(key, data)
                         obj = new_value
+                        del (obj)
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
                     Utils().close_file_delete(bytes_file)

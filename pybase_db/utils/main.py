@@ -247,7 +247,6 @@ class Utils:
 
                     if "debugging" in config:
                         if "enabled" in config["debugging"]:
-                            print("enabled is in debuggin")
                             if isinstance(config["debugging"]["enabled"], bool):
                                 cls.debug = config["debugging"]["enabled"]
                             else:
@@ -255,7 +254,6 @@ class Utils:
                                     'enabled must be a Boolean in the debugging key inside config file.'
                                 )
                         else:
-                            print("enabled is not in debugging")
                             cls.debug = False
                         if "stats" in config["debugging"]:
                             if isinstance(config["debugging"]["stats"], dict):
@@ -392,6 +390,40 @@ class Utils:
                 return dataObject[keys]
             else:
                 dataObject = dataObject[keys]
+
+    def util_split_delete(self, key: str, data: dict):
+        """
+        Method for split dict from key specific and then delete the key.
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The key of the dictionary
+        data : dict
+            The content.
+
+        Raises
+        ------
+        TypeError
+            key is not a str or data is not a dict
+
+        """
+        if type(key) != str:
+            raise TypeError(f"the type of {key} is invalid.")
+        elif type(data) != dict:
+            raise TypeError(f'data "{data}" must be a dictionary.')
+
+        args = key.split(".")
+        dataObject = data
+        for keys in args:
+            if keys not in dataObject.keys():
+                return False
+            elif keys == args[len(args) - 1]:
+                del dataObject[keys]
+            else:
+                dataObject = dataObject[keys]
+        return dataObject
 
     def send_stats(self):
         """
