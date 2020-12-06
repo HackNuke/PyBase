@@ -1,6 +1,6 @@
-#       NTBBloodbath | PyBase v0.4.0       #
-############################################
-# PyBase is distributed under MIT License. #
+# PyBase – DB Manager for NoSQL and SQL databases.
+#=================================================#
+# PyBase is distributed under MIT License.        #
 
 # dependencies (packages/modules)
 import os
@@ -34,9 +34,9 @@ class PyBase:
     insert(content: dict)
         Insert a dictionary content inside the given database file.
     get(key: str=None)
-        Read the database file established in PyBase init to to access its objects.
+        Read the database file established in PyBase init to access its objects.
     has(key: str=None)
-        Read the database file established in PyBase init to to check availability of its objects.
+        Read the database file established in PyBase init to check availability of its objects.
             
     TODO:
         Add more useful methods.
