@@ -35,6 +35,8 @@ class PyBase:
         Insert a dictionary content inside the given database file.
     get(key: str=None)
         Read the database file established in PyBase init to to access its objects.
+    has(key: str=None)
+        Read the database file established in PyBase init to to check availability of its objects.
             
     TODO:
         Add more useful methods.
@@ -450,6 +452,29 @@ class PyBase:
         except Exception as err:
             console.print_exception()
     
+    def has(self, key: str = None):
+        
+        """
+        Read the database file established in PyBase init to check availability of its objects or values ••using the key.
+
+        ...
+        Parameters
+        ----------
+        key : str
+            The key of the first value of the dictionary
+            Default: None
+
+        Returns
+        -------
+        bool 
+            A value that indicates whether the data is found or not
+        """
+
+        try:
+            self.get(key)
+            return True
+        except Exception as err:
+            return False
     
     def __close_file_delete(self, file):
         """   
