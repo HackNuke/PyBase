@@ -1,4 +1,6 @@
-# NTBBloodbath | PyBase v1.0.0
+# PyBase – Manager for NoSQL and SQL databases.
+#==============================================#
+# PyBase is distributed under MIT License.     #
 
 # Import Main utilities class
 from .main import Utils

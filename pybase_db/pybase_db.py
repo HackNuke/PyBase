@@ -1,6 +1,6 @@
-#       NTBBloodbath | PyBase v1.0.0       #
-############################################
-# PyBase is distributed under MIT License. #
+# PyBase – Manager for NoSQL and SQL databases.
+#==============================================#
+# PyBase is distributed under MIT License.     #
 
 # dependencies (packages/modules)
 import datetime
@@ -103,7 +103,7 @@ class PyBase:
                 try:
                     pathlib.Path(self.__path).mkdir(parents=True,
                                                     exist_ok=True)
-                except Exception:
+                except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}", mode="w") as log_file:
@@ -121,7 +121,7 @@ class PyBase:
                 try:
                     pathlib.Path(Utils().logs_location).mkdir(parents=True,
                                                              exist_ok=True)
-                except Exception:
+                except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}", mode="a") as log_file:
@@ -135,7 +135,7 @@ class PyBase:
             if Utils().logs_enabled:
                 def search_old_logs():
                     Utils().delete_old_logs()
-                    sleep(Utils().time_to_seconds("1m"))
+                    sleep(Utils().time_to_seconds(Utils().logs_life_cycle))
 
                 delete_old_logs = Thread(target = search_old_logs)
                 delete_old_logs.daemon = True
@@ -406,7 +406,7 @@ class PyBase:
 
     def fetch(self, key: str = None):
         """
-        Fetch a key and its sub_objects inside the database established in PyBase init.
+        Fetch a key and its sub_objects inside the database and returns None if the object does not exist.
 
         ...
 
@@ -420,8 +420,6 @@ class PyBase:
         ------
         TypeError
             If key isn't a String
-        KeyError
-           When the key does not exist in the specified file type
 
         Returns
         -------
@@ -437,6 +435,8 @@ class PyBase:
             If the object is a list or a tuple.
         dict
             If the object is a dict.
+        None
+            If the object does not exist.
         """
         if type(key) != str:
             raise TypeError('key must be a String.')
@@ -461,7 +461,7 @@ class PyBase:
                                     log_file.write(
                                         f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                         + "========================\n"
-                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                     )
                             return type(data)
                     else:
@@ -480,12 +480,11 @@ class PyBase:
                                         log_file.write(
                                             f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                             + "========================\n"
-                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                            + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                         )
                                 return type(Utils().util_split(key, data))
                             else:
-                                raise KeyError(
-                                    f"\"{key}\" Does not exist in the file")
+                                return None
                 elif self.__EXTENSION == ".yaml":
                     if key is None:
                         with open(self.__DB, mode='r+',
@@ -502,7 +501,7 @@ class PyBase:
                                     log_file.write(
                                         f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                         + "========================\n"
-                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                     )
                             return type(data)
                     else:
@@ -521,12 +520,11 @@ class PyBase:
                                         log_file.write(
                                             f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                             + "========================\n"
-                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                            + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                         )
                                 return type(Utils().util_split(key, data))
                             else:
-                                raise KeyError(
-                                    f"\"{key}\" Does not exist in the file")
+                                return None
                 elif self.__EXTENSION == ".toml":
                     if key is None:
                         with open(self.__DB, mode="r+",
@@ -543,7 +541,7 @@ class PyBase:
                                     log_file.write(
                                         f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                         + "========================\n"
-                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                     )
                             return type(data)
                     else:
@@ -562,12 +560,11 @@ class PyBase:
                                         log_file.write(
                                             f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                             + "========================\n"
-                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                            + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                         )
                                 return type(Utils().util_split(key, data))
                             else:
-                                raise KeyError(
-                                    f"\"{key}\" Does not exist in the file")
+                                return None
                 elif self.__EXTENSION == ".bytes":
                     if key is None:
                         with open(self.__DB, mode="rb") as bytes_file:
@@ -583,7 +580,7 @@ class PyBase:
                                     log_file.write(
                                         f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                         + "========================\n"
-                                        + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                        + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                     )
                             return type(data)
                     else:
@@ -601,12 +598,11 @@ class PyBase:
                                         log_file.write(
                                             f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                             + "========================\n"
-                                            + f"{key} key have been obtained from the database and its value is {type(data)}.\n\n"
+                                            + f"{key} key have been obtained from the database and its type is {type(data)}.\n\n"
                                         )
                                 return type(Utils().util_split(key, data))
                             else:
-                                raise KeyError(
-                                    f"\"{key}\" Does not exist in the file")
+                                return None
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -629,15 +625,12 @@ class PyBase:
             The key of the first value of the dictionary
             Default: None
 
-        Raises
-        ------
-        KeyError
-            When the key does not exist in the specified file type
-
         Returns
         -------
         dict
             A dictionary which contains all the database objects.
+        None
+            If the object does not exist in the database.
         """
 
         if Utils().debug:
@@ -654,6 +647,13 @@ class PyBase:
                         if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                )
                         return data
                 else:
                     with open(self.__DB, mode="r+",
@@ -666,10 +666,16 @@ class PyBase:
                                 console.log(
                                     f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {Utils().util_split(key, data)}.\n\n"
+                                    )
                             return Utils().util_split(key, data)
                         else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                            return None
             elif self.__EXTENSION == ".yaml":
                 if key is None:
                     with open(self.__DB, mode='r+',
@@ -679,6 +685,13 @@ class PyBase:
                         if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                )
                         return data
                 else:
                     with open(self.__DB, mode='r+',
@@ -691,10 +704,16 @@ class PyBase:
                                 console.log(
                                     f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {Utils().util_split(key, data)}.\n\n"
+                                    )
                             return Utils().util_split(key, data)
                         else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                            return None
             elif self.__EXTENSION == ".toml":
                 if key is None:
                     with open(self.__DB, mode="r+",
@@ -704,6 +723,13 @@ class PyBase:
                         if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                )
                         return data
                 else:
                     with open(self.__DB, mode="r+",
@@ -716,10 +742,16 @@ class PyBase:
                                 console.log(
                                     f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {Utils().util_split(key, data)}.\n\n"
+                                    )
                             return Utils().util_split(key, data)
                         else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                            return None
             elif self.__EXTENSION == ".bytes":
                 if key is None:
                     with open(self.__DB, mode="rb") as bytes_file:
@@ -728,6 +760,13 @@ class PyBase:
                         if Utils().debug:
                             sleep(0.5)
                             console.log(f"[DEBUG]: {key} was found.")
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n"
+                                    + f"{key} key have been obtained from the database and its value is {data}.\n\n"
+                                )
                         return data
                 else:
                     with open(self.__DB, mode='rb') as bytes_file:
@@ -739,10 +778,16 @@ class PyBase:
                                 console.log(
                                     f"[DEBUG]: {key} was found and its value is {Utils().util_split(key, data)}."
                                 )
+                            if Utils().logs_enabled:
+                                with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                                    log_file.write(
+                                        f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                        + "========================\n"
+                                        + f"{key} key have been obtained from the database and its value is {Utils().util_split(key, data)}.\n\n"
+                                    )
                             return Utils().util_split(key, data)
                         else:
-                            raise KeyError(
-                                f"\"{key}\" Does not exist in the file")
+                            return None
         except Exception as err:
             console.print_exception()
             if Utils().logs_enabled:
@@ -823,6 +868,13 @@ class PyBase:
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{content} have been inserted into the database.\n\n"
+                            )
                 except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
@@ -861,6 +913,13 @@ class PyBase:
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{content} have been inserted into the database.\n\n"
+                            )
                 except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
@@ -899,6 +958,13 @@ class PyBase:
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{content} have been inserted into the database.\n\n"
+                            )
                 except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
@@ -937,6 +1003,13 @@ class PyBase:
                         console.log(
                             "[DEBUG]: The data was successfully inserted inside the database."
                         )
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n"
+                                + f"{content} have been inserted into the database.\n\n"
+                            )
                 except Exception as err:
                     console.print_exception()
                     if Utils().logs_enabled:
@@ -995,6 +1068,13 @@ class PyBase:
                 with open(self.__DB, encoding="utf-8", mode="w") as json_file:
                     json.dump(data, json_file, indent=4, sort_keys=True)
                     Utils().close_file_delete(json_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{element} have been pushed into {key}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1024,6 +1104,13 @@ class PyBase:
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
                     Utils().close_file_delete(yaml_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{element} have been pushed into {key}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1053,6 +1140,13 @@ class PyBase:
                 with open(self.__DB, encoding="utf-8", mode="w") as toml_file:
                     toml.dump(data, toml_file)
                     Utils().close_file_delete(toml_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{element} have been pushed into {key}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1082,6 +1176,13 @@ class PyBase:
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
                     Utils().close_file_delete(bytes_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{element} have been pushed into {key}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1130,12 +1231,20 @@ class PyBase:
                             )
                         obj = Utils().util_split(key, data)
                         obj = new_value
+                        del (obj)
                     else:
                         raise KeyError(
                             f"\"{key}\" Does not exist in the file.")
                 with open(self.__DB, encoding="utf-8", mode="w") as json_file:
                     json.dump(data, json_file, indent=4, sort_keys=True)
                     Utils().close_file_delete(json_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{key} have been updated and its new value is {new_value}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1160,6 +1269,13 @@ class PyBase:
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
                     Utils().close_file_delete(yaml_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{key} have been updated and its new value is {new_value}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1187,6 +1303,13 @@ class PyBase:
                 with open(self.__DB, encoding="utf-8", mode="w") as toml_file:
                     toml.dump(data, toml_file)
                     Utils().close_file_delete(toml_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{key} have been updated and its new value is {new_value}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:
@@ -1211,6 +1334,13 @@ class PyBase:
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
                     Utils().close_file_delete(bytes_file)
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}", mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n"
+                            + f"{key} have been updated and its new value is {new_value}.\n\n"
+                        )
             except Exception as err:
                 console.print_exception()
                 if Utils().logs_enabled:

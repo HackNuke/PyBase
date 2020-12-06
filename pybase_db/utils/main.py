@@ -1,3 +1,7 @@
+# PyBase – Manager for NoSQL and SQL databases.
+#==============================================#
+# PyBase is distributed under MIT License.     #
+
 import datetime
 import json
 import math
