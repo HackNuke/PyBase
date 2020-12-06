@@ -16,7 +16,7 @@ setup(
     'PyBase is a database manager for multiple filetypes including SQLite3. Very poweful, simple and effective.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='http://ntbbloodbath.github.io/PyBase/',
+    url='https://pybase.netlify.app/',
     author='NTBBloodbath',
     author_email='bloodbathalchemist@protonmail.com',
     license='MIT',
