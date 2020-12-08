@@ -16,7 +16,7 @@ import yaml
 from rich.console import Console
 from rich.traceback import install
 
-install() # Use Rich traceback handler as the default error handler
+install()  # Use Rich traceback handler as the default error handler
 console = Console()
 
 
@@ -46,7 +46,10 @@ class Utils:
 
     @classmethod
     def search_config(cls):
-        files = [f for f in os.listdir(pathlib.Path().absolute()) if os.path.isfile(f)]
+        files = [
+            f for f in os.listdir(pathlib.Path().absolute())
+            if os.path.isfile(f)
+        ]
 
         for dir_file in files:
             if dir_file == "pybase.json":
@@ -55,7 +58,8 @@ class Utils:
 
                     if "debugging" in config:
                         if "enabled" in config["debugging"]:
-                            if isinstance(config["debugging"]["enabled"], bool):
+                            if isinstance(config["debugging"]["enabled"],
+                                          bool):
                                 cls.debug = config["debugging"]["enabled"]
                             else:
                                 raise TypeError(
@@ -66,8 +70,11 @@ class Utils:
                         if "stats" in config["debugging"]:
                             if isinstance(config["debugging"]["stats"], dict):
                                 if "enabled" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["enabled"], bool):
-                                        cls.stats_enabled = config["debugging"]["stats"]["enabled"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["enabled"], bool):
+                                        cls.stats_enabled = config[
+                                            "debugging"]["stats"]["enabled"]
                                     else:
                                         raise TypeError(
                                             'enabled must be a Boolean in the stats key inside the debugging key of the config file.'
@@ -75,8 +82,11 @@ class Utils:
                                 else:
                                     cls.stats_enabled = False
                                 if "interval" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["interval"], str):
-                                        cls.stats_interval = config["debugging"]["stats"]["interval"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["interval"], str):
+                                        cls.stats_interval = config[
+                                            "debugging"]["stats"]["interval"]
                                     else:
                                         raise TypeError(
                                             'interval must be a String in the stats key inside the debugging key of the config file.'
@@ -118,10 +128,12 @@ class Utils:
                                     'location must be a String in the logs key inside the config file.'
                                 )
                         else:
-                            cls.logs_location = pathlib.Path().absolute() + "/tmp"
+                            cls.logs_location = pathlib.Path().absolute(
+                            ) + "/tmp"
                         if "life_cycle" in config["logs"]:
                             if isinstance(config["logs"]["life_cycle"], str):
-                                cls.logs_life_cycle = config["logs"]["life_cycle"]
+                                cls.logs_life_cycle = config["logs"][
+                                    "life_cycle"]
                             else:
                                 raise KeyError(
                                     'life_cycle must be a String in the logs key inside the config file.'
@@ -151,7 +163,8 @@ class Utils:
 
                     if "debugging" in config:
                         if "enabled" in config["debugging"]:
-                            if isinstance(config["debugging"]["enabled"], bool):
+                            if isinstance(config["debugging"]["enabled"],
+                                          bool):
                                 cls.debug = config["debugging"]["enabled"]
                             else:
                                 raise TypeError(
@@ -162,8 +175,11 @@ class Utils:
                         if "stats" in config["debugging"]:
                             if isinstance(config["debugging"]["stats"], dict):
                                 if "enabled" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["enabled"], bool):
-                                        cls.stats_enabled = config["debugging"]["stats"]["enabled"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["enabled"], bool):
+                                        cls.stats_enabled = config[
+                                            "debugging"]["stats"]["enabled"]
                                     else:
                                         raise TypeError(
                                             'enabled must be a Boolean in the stats key inside the debugging key of the config file.'
@@ -171,8 +187,11 @@ class Utils:
                                 else:
                                     cls.stats_enabled = False
                                 if "interval" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["interval"], str):
-                                        cls.stats_interval = config["debugging"]["stats"]["interval"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["interval"], str):
+                                        cls.stats_interval = config[
+                                            "debugging"]["stats"]["interval"]
                                     else:
                                         raise TypeError(
                                             'interval must be a String in the stats key inside the debugging key of the config file.'
@@ -214,10 +233,12 @@ class Utils:
                                     'location must be a String in the logs key inside the config file.'
                                 )
                         else:
-                            cls.logs_location = pathlib.Path().absolute() + "/tmp"
+                            cls.logs_location = pathlib.Path().absolute(
+                            ) + "/tmp"
                         if "life_cycle" in config["logs"]:
                             if isinstance(config["logs"]["life_cycle"], str):
-                                cls.logs_life_cycle = config["logs"]["life_cycle"]
+                                cls.logs_life_cycle = config["logs"][
+                                    "life_cycle"]
                             else:
                                 raise KeyError(
                                     'life_cycle must be a String in the logs key inside the config file.'
@@ -247,7 +268,8 @@ class Utils:
 
                     if "debugging" in config:
                         if "enabled" in config["debugging"]:
-                            if isinstance(config["debugging"]["enabled"], bool):
+                            if isinstance(config["debugging"]["enabled"],
+                                          bool):
                                 cls.debug = config["debugging"]["enabled"]
                             else:
                                 raise TypeError(
@@ -258,8 +280,11 @@ class Utils:
                         if "stats" in config["debugging"]:
                             if isinstance(config["debugging"]["stats"], dict):
                                 if "enabled" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["enabled"], bool):
-                                        cls.stats_enabled = config["debugging"]["stats"]["enabled"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["enabled"], bool):
+                                        cls.stats_enabled = config[
+                                            "debugging"]["stats"]["enabled"]
                                     else:
                                         raise TypeError(
                                             'enabled must be a Boolean in the stats key inside the debugging key of the config file.'
@@ -267,8 +292,11 @@ class Utils:
                                 else:
                                     cls.stats_enabled = False
                                 if "interval" in config["debugging"]["stats"]:
-                                    if isinstance(config["debugging"]["stats"]["interval"], str):
-                                        cls.stats_interval = config["debugging"]["stats"]["interval"]
+                                    if isinstance(
+                                            config["debugging"]["stats"]
+                                        ["interval"], str):
+                                        cls.stats_interval = config[
+                                            "debugging"]["stats"]["interval"]
                                     else:
                                         raise TypeError(
                                             'interval must be a String in the stats key inside the debugging key of the config file.'
@@ -310,10 +338,12 @@ class Utils:
                                     'location must be a String in the logs key inside the config file.'
                                 )
                         else:
-                            cls.logs_location = pathlib.Path().absolute() + "/tmp"
+                            cls.logs_location = pathlib.Path().absolute(
+                            ) + "/tmp"
                         if "life_cycle" in config["logs"]:
                             if isinstance(config["logs"]["life_cycle"], str):
-                                cls.logs_life_cycle = config["logs"]["life_cycle"]
+                                cls.logs_life_cycle = config["logs"][
+                                    "life_cycle"]
                             else:
                                 raise KeyError(
                                     'life_cycle must be a String in the logs key inside the config file.'
@@ -358,7 +388,7 @@ class Utils:
         except Exception:
             console.print_exception()
 
-    def util_split(self, key: str, data: dict):
+    def split(self, key: str, data: dict):
         """
         Method for split dict from key specific
         ...
@@ -376,9 +406,9 @@ class Utils:
             key is not a str or data is not a dict
 
         """
-        if type(key) != str:
+        if not isinstance(key, str):
             raise TypeError(f"the type of {key} is invalid.")
-        elif type(data) != dict:
+        elif not isinstance(data, dict):
             raise TypeError(f'data "{data}" must be a dictionary.')
 
         args = key.split(".")
@@ -391,7 +421,7 @@ class Utils:
             else:
                 dataObject = dataObject[keys]
 
-    def util_split_delete(self, key: str, data: dict):
+    def split_delete(self, key: str, data: dict):
         """
         Method for split dict from key specific and then delete the key.
         ...
@@ -409,9 +439,9 @@ class Utils:
             key is not a str or data is not a dict
 
         """
-        if type(key) != str:
+        if not isinstance(key, str):
             raise TypeError(f"the type of {key} is invalid.")
-        elif type(data) != dict:
+        elif not isinstance(data, dict):
             raise TypeError(f'data "{data}" must be a dictionary.')
 
         args = key.split(".")
@@ -425,16 +455,56 @@ class Utils:
                 dataObject = dataObject[keys]
         return dataObject
 
+    def split_rename(self, key: str, new_name: str, data: dict):
+        """
+        Method for split dict from key specific and then rename the key.
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The key of the dictionary
+        new_name : str
+            The new name of the key
+        data : dict
+            The content.
+
+        Raises
+        ------
+        TypeError
+            key is not a str or new_name is not a str or data is not a dict
+
+        """
+        if not isinstance(key, str):
+            raise TypeError(f"the type of {key} is invalid.")
+        elif not isinstance(new_name, str):
+            raise TypeError(f"the type of {new_name} is invalid.")
+        elif not isinstance(data, dict):
+            raise TypeError(f'data "{data}" must be a dictionary.')
+
+        args = key.split(".")
+        dataObject = data
+        for keys in args:
+            if keys not in dataObject.keys():
+                return False
+            elif keys == args[len(args) - 1]:
+                if new_name != keys:
+                    dataObject[new_name] = dataObject[keys]
+                    del dataObject[keys]
+                else:
+                    return None
+            else:
+                dataObject = dataObject[keys]
+        return dataObject
+
     def send_stats(self):
         """
         Method for send statistics of usage.
         """
 
-        pybase_process = psutil.Process(os.getpid())  # Get PyBase process ID
-        pybase_cpu_usage = pybase_process.cpu_percent(
-            interval=1.0) # CPU Usage in percentage
-        pybase_ram_usage = round(pybase_process.memory_percent(),
-                                 1) # Memory usage in percentage
+        pybase_process = psutil.Process(os.getpid())
+        pybase_cpu_usage = pybase_process.cpu_percent(interval=1.0)
+        pybase_ram_usage = round(pybase_process.memory_percent(), 1)
         console.log(f"""[DEBUG]: Showing PyBase Usage statistics ...
          CPU Usage: {pybase_cpu_usage}%
          RAM Usage: {pybase_ram_usage}%""")
@@ -445,9 +515,11 @@ class Utils:
         """
 
         for logs in os.listdir(os.path.abspath(self.logs_location)):
-            if (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(os.path.getctime(os.path.abspath(self.logs_location) + "/" + logs))).seconds <= self.time_to_seconds(self.logs_life_cycle):
+            if (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(
+                    os.path.getctime(
+                        os.path.abspath(self.logs_location) + "/" + logs))
+                ).seconds <= self.time_to_seconds(self.logs_life_cycle):
                 return f"{os.path.abspath(self.logs_location)}/{logs}"
-
 
     def delete_old_logs(self):
         """
@@ -458,7 +530,10 @@ class Utils:
             sleep(0.5)
             console.log("[DEBUG]: Searching for old log files ...")
         for logs in os.listdir(os.path.abspath(self.logs_location)):
-            if (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(os.path.getctime(os.path.abspath(self.logs_location) + "/" + logs))).seconds >= self.time_to_seconds(self.logs_life_cycle):
+            if (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(
+                    os.path.getctime(
+                        os.path.abspath(self.logs_location) + "/" + logs))
+                ).seconds >= self.time_to_seconds(self.logs_life_cycle):
                 if self.debug:
                     sleep(0.5)
                     console.log(f"[DEBUG]: Deleting old log file {logs} ...")
@@ -484,14 +559,18 @@ class Utils:
         weeks = days * 7
 
         if "w" in time:
-            time = int(time.replace("w", "")) if "." not in time else float(time.replace("w", ""))
+            time = int(time.replace("w", "")) if "." not in time else float(
+                time.replace("w", ""))
             return time * weeks
         elif "d" in time:
-            time = int(time.replace("d", "")) if "." not in time else float(time.replace("d", ""))
+            time = int(time.replace("d", "")) if "." not in time else float(
+                time.replace("d", ""))
             return time * days
         elif "h" in time:
-            time = int(time.replace("h", "")) if "." not in time else float(time.replace("h", ""))
+            time = int(time.replace("h", "")) if "." not in time else float(
+                time.replace("h", ""))
             return time * hours
         elif "m" in time:
-            time = int(time.replace("m", "")) if "." not in time else float(time.replace("m", ""))
+            time = int(time.replace("m", "")) if "." not in time else float(
+                time.replace("m", ""))
             return time * mins
