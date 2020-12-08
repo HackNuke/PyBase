@@ -1,9 +1,11 @@
 # Benchmark tests - PyBase v1.0.0
+# Latest benchmark: v1.0.0.dev5
 
 import random
 import time
 
-from pybase_db import PyBase
+from pybase_db.pybase_db import PyBase
+
 
 def timer_func(func):
     def function_timer(*args, **kwargs):
@@ -12,8 +14,9 @@ def timer_func(func):
         end = time.time()
         runtime = end - start
         msg = "{func}\ttook {time} seconds to complete its execution.\n"
-        print(msg.format(func = func.__name__,time = round(runtime, 3)))
+        print(msg.format(func=func.__name__, time=round(runtime, 3)))
         return value
+
     return function_timer
 
 
@@ -38,7 +41,8 @@ def insert_1():
             "titlecolor": "#00f9ff",
             "mcolor": "#00ffd5",
             "gcanal": "721520429726040145",
-            "gfondo": "https://cdn.discordapp.com/attachments/721520429726040145/721891962676052098/unknown.png",
+            "gfondo":
+            "https://cdn.discordapp.com/attachments/721520429726040145/721891962676052098/unknown.png",
             "datos": {
                 "rolb": "729110021282988092"
             },
@@ -49,26 +53,31 @@ def insert_1():
             "rol": "729141832029700126"
         },
         "716465688377557023": {
-            "fondo": "https://cdn.discordapp.com/attachments/716468290851176489/721948154152615987/unknown.png",
+            "fondo":
+            "https://cdn.discordapp.com/attachments/716468290851176489/721948154152615987/unknown.png",
             "titulo": "",
             "mensaje": "",
             "color": "",
             "rol": "735273493050032148",
             "canal": "733072755112542329",
             "gcanal": "716468290851176489",
-            "gfondo": "https://cdn.discordapp.com/attachments/721520429726040145/721891962676052098/unknown.png",
+            "gfondo":
+            "https://cdn.discordapp.com/attachments/721520429726040145/721891962676052098/unknown.png",
             "title": "¡Bienvenid@!",
             "msgw": "holasdasd"
         },
         "721501732043096126": {
-            "fondo": "https://cdn.discordapp.com/attachments/721506140575498240/721968560972234812/2Q.png",
-            "msgw": "Cayo {user} ¡¡¡Que onda Master!!! Te damos la bienvenida a {server} Esperamos que la pases recontra bien",
+            "fondo":
+            "https://cdn.discordapp.com/attachments/721506140575498240/721968560972234812/2Q.png",
+            "msgw":
+            "Cayo {user} ¡¡¡Que onda Master!!! Te damos la bienvenida a {server} Esperamos que la pases recontra bien",
             "desc": "Bienvenido capo",
             "canal": "721506140575498240",
             "mcolor": "#a338ff"
         },
         "222864538716864513": {
-            "gfondo": "https://vignette.wikia.nocookie.net/kakegurui/images/9/91/YumemiOnstage.jpg/revision/latest?cb=20190328191626",
+            "gfondo":
+            "https://vignette.wikia.nocookie.net/kakegurui/images/9/91/YumemiOnstage.jpg/revision/latest?cb=20190328191626",
             "canal": "383828356849991682",
             "gcanal": "222906506541137930",
             "gmcolor": "#FF0000",
@@ -78,15 +87,18 @@ def insert_1():
             "canal": "721992401232855080"
         },
         "723191976693858345": {
-            "canal": "723191976693858348",
-            "fondo": "https://cdn.discordapp.com/attachments/721506140575498240/721968560972234812/2Q.png"
+            "canal":
+            "723191976693858348",
+            "fondo":
+            "https://cdn.discordapp.com/attachments/721506140575498240/721968560972234812/2Q.png"
         },
         "415346195544801291": {
             "canal": "674509574618873896"
         },
         "739864270803828840": {
             "canal": "740221252333076591",
-            "fondo": "https://www.valuehost.com.br/blog/wp-content/uploads/2015/03/servers.jpg",
+            "fondo":
+            "https://www.valuehost.com.br/blog/wp-content/uploads/2015/03/servers.jpg",
             "desc": "Hosting & VPS",
             "msgw": "¡Nuevo miembro en SigloHost!",
             "gcanal": "740021948918136844"
@@ -94,7 +106,8 @@ def insert_1():
         "737185866652319755": {
             "canal": "741447943256801290",
             "title": "Awoo",
-            "fondo": "https://cdn.discordapp.com/attachments/741447943256801290/742080136370716682/argentina.png",
+            "fondo":
+            "https://cdn.discordapp.com/attachments/741447943256801290/742080136370716682/argentina.png",
             "msgw": "Hi",
             "desc": "{server}",
             "owner": []
@@ -105,7 +118,8 @@ def insert_1():
         },
         "770376448342753320": {
             "canal": "770376448342753324",
-            "fondo": "https://cdn.discordapp.com/attachments/770376448342753324/770380362814586900/unknown.png",
+            "fondo":
+            "https://cdn.discordapp.com/attachments/770376448342753324/770380362814586900/unknown.png",
             "title": "Centauri",
             "gcanal": "770376448342753324"
         }
@@ -175,6 +189,13 @@ def updating():
     db.update(key="737185866652319755.title", new_value="New amazing title!")
 
 
+@timer_func
+def renaming():
+    db = PyBase(database="benchmark", db_type="json")
+
+    db.rename(key="737185866652319755.title", new_name="guild_title")
+
+
 creating()
 insert_1()
 insert_2()
@@ -184,3 +205,4 @@ getting_one()
 getting_all()
 pushing_1()
 updating()
+renaming()
