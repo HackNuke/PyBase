@@ -12,7 +12,7 @@ This is a detailed and complete changelog of the different versions of PyBase.
   - Breaking changes:
     - Global:
       - Added optionally logs. Now you can have a register of what was happening to your database (enabled by default).
-      - Config file was added (**see [example config](./examples/pybase.yaml)**). Now debugging (debug, stats) and logs are configurations instead of parameters.
+      - Config file was added (**see [example config](https://github.com/PyBase/PyBase/blob/development/examples/pybase.yaml)**). Now debugging (debug, stats) and logs are configurations instead of parameters.
       - The `debug` parameter has been added to the config, now you can see what happens behind the curtains!
       - The `stats` parameter has been added to the config, now you can see how much CPU and RAM is consuming PyBase!
     - PyBase Class:
@@ -25,9 +25,9 @@ This is a detailed and complete changelog of the different versions of PyBase.
       - Added `psutil` to dependencies.
     - PyBase Class:
       - Added full support for TOML files.
-      - Added `push` method. Push a item into a list inside your database without having a headache!
-      - Added `rename` method. Did you make a mistake in a character in the name of a key? Don't worry, you no longer have to manually open your database to fix it!
-      - Added `update` method. Update the values of your keys inside the database.
+      - Added `push` method, see [docs](https://pybase.netlify.app/docs/v1.0.0.html#pybase-push). Push a item into a list inside your database without having a headache!
+      - Added `rename` method, see [docs](https://pybase.netlify.app/docs/v1.0.0.html#pybase-rename). Did you make a mistake in a character in the name of a key? Don't worry, you no longer have to manually open your database to fix it!
+      - Added `update` method, see [docs](https://pybase.netlify.app/docs/v1.0.0.html#pybase-update). Update the values of your keys inside the database.
       - Now the init doesn't raise errors when the specified path doesn't exists. Instead, it tries to create the path.
       - Now the `insert` method have a parameter called `mode`. Now when inserting data to an existing key the old data will not be overwritten!
 

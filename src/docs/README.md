@@ -19,7 +19,7 @@ If you need help getting started with PyBase, go to [Guide](/guide/).
 ------
 
 - Versions:
-  - [1.0.0.dev2 (Development)](/docs/v1.0.0/)
+  - [1.0.0.dev5 (Development)](/docs/v1.0.0/)
   - [0.5.0 (Latest Stable)](/docs/v0.5.0/)
   - [0.4.1](/docs/v0.4.1/)
 
