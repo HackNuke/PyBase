@@ -1,6 +1,17 @@
 .pyc
+
+# Build files
 *.egg-info
 build/
 dist/
 docs/
-__pycache__
+
+# Cache
+**/__pycache__
+
+# Benchmark json files
+**/*.json
+
+# Execution files (databases, tmp files)
+**/tmp/
+**/db/
