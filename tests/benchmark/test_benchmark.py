@@ -1,32 +1,17 @@
 # Benchmark tests - PyBase v1.0.0
 # Latest benchmark: v1.0.0.dev5
 
-import random
 import time
+import pytest
 
 from pybase_db.pybase_db import PyBase
 
 
-def timer_func(func):
-    def function_timer(*args, **kwargs):
-        start = time.time()
-        value = func(*args, **kwargs)
-        end = time.time()
-        runtime = end - start
-        msg = "{func}\ttook {time} seconds to complete its execution.\n"
-        print(msg.format(func=func.__name__, time=round(runtime, 3)))
-        return value
-
-    return function_timer
+def db_creation():
+    PyBase(database="bench", db_type="json")
 
 
-@timer_func
-def creating():
-    PyBase(database="benchmark", db_type="json")
-
-
-@timer_func
-def insert_1():
+def insertion_write_mode():
     # Special thanks to Velikaz per the example json
     # provided for doing the benchmark test ♥
     #
@@ -125,15 +110,12 @@ def insert_1():
         }
     }
 
-    db = PyBase(database="benchmark", db_type="json")
-
+    db = PyBase(database="bench", db_type="json")
     db.insert(content=objects, mode="w")
 
 
-@timer_func
-def insert_2():
-    db = PyBase(database="benchmark", db_type="json")
-
+def insertion_append_mode():
+    db = PyBase(database="bench", db_type="json")
     db.insert(content={
         "guilds": {
             "12345": {
@@ -147,62 +129,78 @@ def insert_2():
               mode="a")
 
 
-@timer_func
-def deleting():
-    db = PyBase(database="benchmark", db_type="json")
-
+def delete():
+    db = PyBase(database="bench", db_type="json")
     db.delete("770376448342753320")
 
 
-@timer_func
-def fetching():
-    db = PyBase(database="benchmark", db_type="json")
-
+def fetch():
+    db = PyBase(database="bench", db_type="json")
     db.fetch("737185866652319755.title")
 
 
-@timer_func
-def getting_one():
-    db = PyBase(database="benchmark", db_type="json")
-
+def get_one():
+    db = PyBase(database="bench", db_type="json")
     db.get("737185866652319755")
 
 
-@timer_func
-def getting_all():
-    db = PyBase(database="benchmark", db_type="json")
-
+def get_all():
+    db = PyBase(database="bench", db_type="json")
     db.get()
 
 
-@timer_func
-def pushing_1():
-    db = PyBase(database="benchmark", db_type="json")
-
+def push():
+    db = PyBase(database="bench", db_type="json")
     db.push(key="737185866652319755.owner", element="Unknown")
 
 
-@timer_func
-def updating():
-    db = PyBase(database="benchmark", db_type="json")
-
+def update():
+    db = PyBase(database="bench", db_type="json")
     db.update(key="737185866652319755.title", new_value="New amazing title!")
 
 
-@timer_func
-def renaming():
-    db = PyBase(database="benchmark", db_type="json")
-
+def rename():
+    db = PyBase(database="bench", db_type="json")
     db.rename(key="737185866652319755.title", new_name="guild_title")
 
 
-creating()
-insert_1()
-insert_2()
-deleting()
-fetching()
-getting_one()
-getting_all()
-pushing_1()
-updating()
-renaming()
+### RUN BENCHMARK
+def test_db_creation(benchmark):
+    benchmark(db_creation)
+
+
+def test_insertion_write_mode(benchmark):
+    benchmark(insertion_write_mode)
+
+
+def test_insertion_append_mode(benchmark):
+    benchmark(insertion_append_mode)
+
+
+def test_delete(benchmark):
+    # Just one iteration or will fail
+    benchmark.pedantic(delete, iterations=1)
+
+
+def test_fetch(benchmark):
+    benchmark(fetch)
+
+
+def test_get_one(benchmark):
+    benchmark(get_one)
+
+
+def test_get_all(benchmark):
+    benchmark(get_all)
+
+
+def test_push(benchmark):
+    benchmark(push)
+
+
+def test_update(benchmark):
+    benchmark(update)
+
+
+def test_rename(benchmark):
+    benchmark(rename)

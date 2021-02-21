@@ -1,0 +1,1 @@
+supportedLanguages = [ "json", "yaml", "bytes", "toml",]
