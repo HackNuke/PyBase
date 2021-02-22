@@ -8,19 +8,15 @@ import json
 import os
 import pathlib
 import pickle
+import traceback
 from threading import Thread
 from time import sleep
 
 import toml
 import yaml
-from rich.console import Console
-from rich.traceback import install
 
 from .utils import Utils
 from .version import __version__
-
-install()  # Use Rich traceback handler as the default error handler
-console = Console()
 
 
 class PyBase:
@@ -52,7 +48,7 @@ class PyBase:
     def __init__(self,
                  database: str,
                  db_type: str,
-                 db_path: str = pathlib.Path().absolute()):
+                 db_path: str = str(pathlib.Path().absolute()) + '/db'):
         """
         Define the database to use and create it if it doesn't exist.
 
@@ -67,8 +63,8 @@ class PyBase:
             Available types: yaml, json, toml, bytes
             Note: To use SQLite3, use the PySQL module.
         db_path : str, optional
-            The path where the database is located (default is current working directory).
-            Example: /home/bloodbath/Desktop/PyBase
+            The path where the database is located (default is dir called db in the current working directory).
+            Example: /home/bloodbath/Desktop/PyBase/db
 
         Raises
         ------
@@ -83,6 +79,17 @@ class PyBase:
         # Search for config file
         Utils().search_config()
 
+        # Search for old logs files and delete them
+        if Utils().logs_enabled:
+
+            def search_old_logs():
+                Utils().delete_old_logs()
+                sleep(Utils().time_to_seconds(Utils().logs_life_cycle))
+
+            delete_old_logs = Thread(target=search_old_logs)
+            delete_old_logs.daemon = True
+            delete_old_logs.start()
+
         if not isinstance(database, str):
             raise TypeError('database must be a String.')
         if not isinstance(db_type, str):
@@ -92,19 +99,20 @@ class PyBase:
             self.__DB = (f'{self.__path}/{database}{self.__EXTENSION}')
 
             if Utils().debug:
-                console.log(f"[DEBUG]: Using PyBase v{__version__}")
+                print(f"[DEBUG] Using PyBase v{__version__}")
 
             if os.path.exists(self.__path) is False:
                 if Utils().debug:
                     sleep(0.5)
-                    console.log(
-                        "[DEBUG]: The established path doesn't exist. Trying to create it ..."
+                    print(
+                        "[DEBUG] The established path doesn't exist. Trying to create it ..."
                     )
                 try:
                     pathlib.Path(self.__path).mkdir(parents=True,
                                                     exist_ok=True)
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="w") as log_file:
@@ -116,14 +124,15 @@ class PyBase:
             if os.path.exists(Utils().logs_location) is False:
                 if Utils().debug:
                     sleep(0.5)
-                    console.log(
-                        "[DEBUG]: The established logs location doesn't exist. Trying to create it ..."
+                    print(
+                        "[DEBUG] The established logs location doesn't exist. Trying to create it ..."
                     )
                 try:
                     pathlib.Path(Utils().logs_location).mkdir(parents=True,
                                                               exist_ok=True)
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -133,28 +142,17 @@ class PyBase:
                                 f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
                             )
 
-            # Search for old logs files and delete them every 20m
-            if Utils().logs_enabled:
-
-                def search_old_logs():
-                    Utils().delete_old_logs()
-                    sleep(Utils().time_to_seconds(Utils().logs_life_cycle))
-
-                delete_old_logs = Thread(target=search_old_logs)
-                delete_old_logs.daemon = True
-                delete_old_logs.start()
-
             if Utils().debug:
                 sleep(0.5)
-                console.log(
-                    f"[DEBUG]: Searching if the database ({self.__DB}) exists ..."
+                print(
+                    f"[DEBUG] Searching if the database ({self.__DB}) exists ..."
                 )
             if db_type.lower() == 'json':
                 if os.path.exists(self.__DB) is False:
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
+                        print(
+                            f"[DEBUG] Trying to create the database file ({self.__DB}) ..."
                         )
                     try:
                         with open(self.__DB, mode='w+',
@@ -162,8 +160,8 @@ class PyBase:
                             json.dump({}, json_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                "[DEBUG]: The database file was created successfully."
+                            print(
+                                "[DEBUG] The database file was created successfully."
                             )
                         if Utils().logs_enabled:
                             if len(os.listdir(Utils().logs_location)) == 0:
@@ -176,7 +174,8 @@ class PyBase:
                                         f"The database was created successfully\n({self.__DB}).\n\n"
                                     )
                     except Exception as err:
-                        console.print_exception()
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -189,8 +188,8 @@ class PyBase:
                 if os.path.exists(self.__DB) is False:
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
+                        print(
+                            f"[DEBUG] Trying to create the database file ({self.__DB}) ..."
                         )
                     try:
                         with open(self.__DB, mode='w+',
@@ -198,11 +197,12 @@ class PyBase:
                             yaml.dump({}, yaml_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                "[DEBUG]: The database file was created successfully."
+                            print(
+                                "[DEBUG] The database file was created successfully."
                             )
                     except Exception as err:
-                        console.print_exception()
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -215,8 +215,8 @@ class PyBase:
                 if os.path.exists(self.__DB) is False:
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
+                        print(
+                            f"[DEBUG] Trying to create the database file ({self.__DB}) ..."
                         )
                     try:
                         with open(self.__DB, mode='w+',
@@ -224,8 +224,8 @@ class PyBase:
                             toml.dump({}, toml_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                "[DEBUG]: The database file was created successfully."
+                            print(
+                                "[DEBUG] The database file was created successfully."
                             )
                         if Utils().logs_enabled:
                             if len(os.listdir(Utils().logs_location)) == 0:
@@ -238,7 +238,8 @@ class PyBase:
                                         f"The database was created successfully\n({self.__DB}).\n\n"
                                     )
                     except Exception as err:
-                        console.print_exception()
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -251,16 +252,16 @@ class PyBase:
                 if not os.path.exists(self.__DB):
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Trying to create the database file ({self.__DB}) ..."
+                        print(
+                            f"[DEBUG] Trying to create the database file ({self.__DB}) ..."
                         )
                     try:
                         with open(self.__DB, mode="wb") as bytes_file:
                             pickle.dump({}, bytes_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                "[DEBUG]: The database file was created successfully."
+                            print(
+                                "[DEBUG] The database file was created successfully."
                             )
                         if Utils().logs_enabled:
                             if len(os.listdir(Utils().logs_location)) == 0:
@@ -273,7 +274,8 @@ class PyBase:
                                         f"The database was created successfully\n({self.__DB}).\n\n"
                                     )
                     except Exception as err:
-                        console.print_exception()
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -290,7 +292,8 @@ class PyBase:
                     Utils().send_stats,
                     Utils().time_to_seconds(Utils().stats_interval))
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -340,7 +343,8 @@ class PyBase:
                                 f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -367,7 +371,8 @@ class PyBase:
                                 f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -394,7 +399,8 @@ class PyBase:
                                 f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -420,7 +426,8 @@ class PyBase:
                                 f"{key} key have been removed from the database.\n\n"
                             )
                 except KeyError as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -469,7 +476,7 @@ class PyBase:
         else:
             if Utils().debug:
                 sleep(0.5)
-                console.log(f"[DEBUG]: Searching for the key {key} ...")
+                print(f"[DEBUG] Searching for the key {key} ...")
             try:
                 if self.__EXTENSION == ".json":
                     if key is None:
@@ -479,8 +486,8 @@ class PyBase:
                             Utils().close_file_delete(json_file)
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its type is {type(data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its type is {type(data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -499,8 +506,8 @@ class PyBase:
                             if Utils().split(key, data):
                                 if Utils().debug:
                                     sleep(0.5)
-                                    console.log(
-                                        f"[DEBUG]: {key} was found and its type is {type(data)}"
+                                    print(
+                                        f"[DEBUG] {key} was found and its type is {type(data)}"
                                     )
                                 if Utils().logs_enabled:
                                     with open(f"{Utils().current_logs()}",
@@ -521,8 +528,8 @@ class PyBase:
                             Utils().close_file_delete(yaml_file)
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its type is {type(data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its type is {type(data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -541,8 +548,8 @@ class PyBase:
                             if Utils().split(key, data):
                                 if Utils().debug:
                                     sleep(0.5)
-                                    console.log(
-                                        f"[DEBUG]: {key} was found and its type is {type(data)}"
+                                    print(
+                                        f"[DEBUG] {key} was found and its type is {type(data)}"
                                     )
                                 if Utils().logs_enabled:
                                     with open(f"{Utils().current_logs()}",
@@ -563,8 +570,8 @@ class PyBase:
                             Utils().close_file_delete(toml_file)
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its type is {type(data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its type is {type(data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -583,8 +590,8 @@ class PyBase:
                             if Utils().split(key, data):
                                 if Utils().debug:
                                     sleep(0.5)
-                                    console.log(
-                                        f"[DEBUG]: {key} was found and its type is {type(data)}"
+                                    print(
+                                        f"[DEBUG] {key} was found and its type is {type(data)}"
                                     )
                                 if Utils().logs_enabled:
                                     with open(f"{Utils().current_logs()}",
@@ -604,8 +611,8 @@ class PyBase:
                             Utils().close_file_delete(bytes_file)
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its type is {type(data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its type is {type(data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -623,8 +630,8 @@ class PyBase:
                             if Utils().split(key, data):
                                 if Utils().debug:
                                     sleep(0.5)
-                                    console.log(
-                                        f"[DEBUG]: {key} was found and its type is {type(data)}"
+                                    print(
+                                        f"[DEBUG] {key} was found and its type is {type(data)}"
                                     )
                                 if Utils().logs_enabled:
                                     with open(f"{Utils().current_logs()}",
@@ -638,7 +645,8 @@ class PyBase:
                             else:
                                 return None
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -670,8 +678,7 @@ class PyBase:
 
         if Utils().debug:
             sleep(0.5)
-            console.log(
-                f"[DEBUG]: Trying to get the key {key} from the database ...")
+            print(f"[DEBUG] Trying to get the key {key} from the database ...")
         try:
             if self.__EXTENSION == ".json":
                 if key is None:
@@ -681,7 +688,7 @@ class PyBase:
                         Utils().close_file_delete(json_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found.")
+                            print(f"[DEBUG] {key} was found.")
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -699,8 +706,8 @@ class PyBase:
                         if Utils().split(key, data):
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its value is {Utils().split(key, data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its value is {Utils().split(key, data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -721,7 +728,7 @@ class PyBase:
                         Utils().close_file_delete(yaml_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found.")
+                            print(f"[DEBUG] {key} was found.")
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -739,8 +746,8 @@ class PyBase:
                         if Utils().split(key, data):
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its value is {Utils().split(key, data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its value is {Utils().split(key, data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -761,7 +768,7 @@ class PyBase:
                         Utils().close_file_delete(toml_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found.")
+                            print(f"[DEBUG] {key} was found.")
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -779,8 +786,8 @@ class PyBase:
                         if Utils().split(key, data):
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its value is {Utils().split(key, data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its value is {Utils().split(key, data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -800,7 +807,7 @@ class PyBase:
                         Utils().close_file_delete(bytes_file)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(f"[DEBUG]: {key} was found.")
+                            print(f"[DEBUG] {key} was found.")
                         if Utils().logs_enabled:
                             with open(f"{Utils().current_logs()}",
                                       mode="a") as log_file:
@@ -817,8 +824,8 @@ class PyBase:
                         if Utils().split(key, data):
                             if Utils().debug:
                                 sleep(0.5)
-                                console.log(
-                                    f"[DEBUG]: {key} was found and its value is {Utils().split(key, data)}."
+                                print(
+                                    f"[DEBUG] {key} was found and its value is {Utils().split(key, data)}."
                                 )
                             if Utils().logs_enabled:
                                 with open(f"{Utils().current_logs()}",
@@ -832,7 +839,8 @@ class PyBase:
                         else:
                             return None
         except Exception as err:
-            console.print_exception()
+            print("[ERROR] Something went wrong ...")
+            traceback.print_exc()
             if Utils().logs_enabled:
                 with open(f"{Utils().current_logs()}", mode="a") as log_file:
                     log_file.write(
@@ -860,20 +868,21 @@ class PyBase:
         try:
             if Utils().debug:
                 sleep(0.5)
-                console.log(
-                    f"[DEBUG]: Checking the availability of the key {key} ...")
+                print(
+                    f"[DEBUG] Checking the availability of the key {key} ...")
             if self.get(key) is not None:
                 if Utils().debug:
                     sleep(0.5)
-                    console.log(f"[DEBUG]: The key {key} exist.")
+                    print(f"[DEBUG] The key {key} exist.")
                 return True
             else:
                 if Utils().debug:
                     sleep(0.5)
-                    console.log(f"[DEBUG]: The key {key} doesn't exist.")
+                    print(f"[DEBUG] The key {key} doesn't exist.")
                 return False
         except Exception as err:
-            console.print_exception()
+            print("[ERROR] Something went wrong ...")
+            traceback.print_exc()
             if Utils().logs_enabled:
                 with open(f"{Utils().current_logs()}", mode="a") as log_file:
                     log_file.write(
@@ -913,8 +922,8 @@ class PyBase:
         else:
             if Utils().debug:
                 sleep(0.5)
-                console.log(
-                    f"[DEBUG]: Trying to insert {content} in {'write' if mode == 'w' else 'append'} mode inside the database ..."
+                print(
+                    f"[DEBUG] Trying to insert {content} in {'write' if mode == 'w' else 'append'} mode inside the database ..."
                 )
             if self.__EXTENSION == '.json':
                 try:
@@ -950,8 +959,8 @@ class PyBase:
                             Utils().close_file_delete(json_file)
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
+                        print(
+                            "[DEBUG] The data was successfully inserted inside the database."
                         )
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
@@ -959,10 +968,10 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n" +
-                                f"{content} have been inserted into the database.\n\n"
-                            )
+                                f"Inserted into the database.\n{content}\n\n")
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -999,8 +1008,8 @@ class PyBase:
                             Utils().close_file_delete(yaml_file)
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
+                        print(
+                            "[DEBUG] The data was successfully inserted inside the database."
                         )
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
@@ -1008,10 +1017,10 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n" +
-                                f"{content} have been inserted into the database.\n\n"
-                            )
+                                f"Inserted into the database.\n{content}\n\n")
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1048,8 +1057,8 @@ class PyBase:
                             Utils().close_file_delete(toml_file)
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
+                        print(
+                            "[DEBUG] The data was successfully inserted inside the database."
                         )
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
@@ -1057,10 +1066,10 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n" +
-                                f"{content} have been inserted into the database.\n\n"
-                            )
+                                f"Inserted into the database.\n{content}\n\n")
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1095,8 +1104,8 @@ class PyBase:
                             Utils().close_file_delete(bytes_file)
                     if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            "[DEBUG]: The data was successfully inserted inside the database."
+                        print(
+                            "[DEBUG] The data was successfully inserted inside the database."
                         )
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
@@ -1104,10 +1113,10 @@ class PyBase:
                             log_file.write(
                                 f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
                                 + "========================\n" +
-                                f"{content} have been inserted into the database.\n\n"
-                            )
+                                f"Inserted into the database.\n{content}\n\n")
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1144,7 +1153,7 @@ class PyBase:
             raise TypeError('key must be a String')
         if Utils().debug:
             sleep(0.5)
-            console.log(f"[DEBUG]: Trying to push {element} into {key} ...")
+            print(f"[DEBUG] Trying to push {element} into {key} ...")
         if self.__EXTENSION == ".json":
             try:
                 with open(self.__DB, encoding="utf-8") as json_file:
@@ -1154,9 +1163,8 @@ class PyBase:
                                                                 data) == []:
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to push ..."
-                            )
+                            print(
+                                f"[DEBUG] {key} was found. Trying to push ...")
                         Utils().split(key, data).append(element)
                     else:
                         raise KeyError(
@@ -1173,7 +1181,8 @@ class PyBase:
                             + "========================\n" +
                             f"{element} have been pushed into {key}.\n\n")
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1191,9 +1200,8 @@ class PyBase:
                                                                 data) == []:
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to push ..."
-                            )
+                            print(
+                                f"[DEBUG] {key} was found. Trying to push ...")
                         Utils().split(key, data).append(element)
                     else:
                         raise KeyError(
@@ -1210,7 +1218,8 @@ class PyBase:
                             + "========================\n" +
                             f"{element} have been pushed into {key}.\n\n")
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1228,9 +1237,8 @@ class PyBase:
                                                                 data) == []:
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to push ..."
-                            )
+                            print(
+                                f"[DEBUG] {key} was found. Trying to push ...")
                         Utils().split(key, data).append(element)
                     else:
                         raise KeyError(
@@ -1247,7 +1255,8 @@ class PyBase:
                             + "========================\n" +
                             f"{element} have been pushed into {key}.\n\n")
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1265,9 +1274,8 @@ class PyBase:
                                                                 data) == []:
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to push ..."
-                            )
+                            print(
+                                f"[DEBUG] {key} was found. Trying to push ...")
                         Utils().split(key, data).append(element)
                     else:
                         raise KeyError(
@@ -1284,7 +1292,8 @@ class PyBase:
                             + "========================\n" +
                             f"{element} have been pushed into {key}.\n\n")
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1326,8 +1335,8 @@ class PyBase:
                         data = Utils().split_rename(key, new_name, data)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to rename it ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to rename it ..."
                             )
                     with open(self.__DB, encoding="utf-8",
                               mode="w") as json_file:
@@ -1342,7 +1351,8 @@ class PyBase:
                                 f"{key} have been renamed and its new name is {new_name}.\n\n"
                             )
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1358,8 +1368,8 @@ class PyBase:
                         data = Utils().split_rename(key, new_name, data)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to rename it ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to rename it ..."
                             )
                     with open(self.__DB, encoding="utf-8",
                               mode="w") as yaml_file:
@@ -1374,7 +1384,8 @@ class PyBase:
                                 f"{key} have been renamed and its new name is {new_name}.\n\n"
                             )
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1390,8 +1401,8 @@ class PyBase:
                         data = Utils().split_rename(key, new_name, data)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to rename it ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to rename it ..."
                             )
                     with open(self.__DB, encoding="utf-8",
                               mode="w") as toml_file:
@@ -1406,7 +1417,8 @@ class PyBase:
                                 f"{key} have been renamed and its new name is {new_name}.\n\n"
                             )
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1422,8 +1434,8 @@ class PyBase:
                         data = Utils().split_rename(key, new_name, data)
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to rename it ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to rename it ..."
                             )
                     with open(self.__DB, mode="wb") as bytes_file:
                         pickle.dump(data, toml_file)
@@ -1437,7 +1449,8 @@ class PyBase:
                                 f"{key} have been renamed and its new name is {new_name}.\n\n"
                             )
                 except Exception as err:
-                    console.print_exception()
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
                     if Utils().logs_enabled:
                         with open(f"{Utils().current_logs()}",
                                   mode="a") as log_file:
@@ -1472,7 +1485,7 @@ class PyBase:
             raise TypeError('key must be a String')
         if Utils().debug:
             sleep(0.5)
-            console.log(f"[DEBUG]: Trying to change the value of {key} ...")
+            print(f"[DEBUG] Trying to change the value of {key} ...")
         if self.__EXTENSION == ".json":
             try:
                 with open(self.__DB, encoding="utf-8") as json_file:
@@ -1480,12 +1493,10 @@ class PyBase:
                     if Utils().split(key, data):
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to set the new value ..."
                             )
-                        obj = Utils().split(key, data)
-                        obj = new_value
-                        del (obj)
+                        data = Utils().split_update(key, new_value, data)
                     else:
                         raise KeyError(
                             f"\"{key}\" Does not exist in the file.")
@@ -1501,7 +1512,8 @@ class PyBase:
                             f"{key} have been updated and its new value is {new_value}.\n\n"
                         )
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1517,12 +1529,10 @@ class PyBase:
                     if Utils().split(key, data):
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to set the new value ..."
                             )
-                        obj = Utils().split(key, data)
-                        obj = new_value
-                        del (obj)
+                        data = Utils().split_update(key, new_value, data)
                 with open(self.__DB, encoding="utf-8", mode="w") as yaml_file:
                     yaml.dump(data, yaml_file, sort_keys=True)
                     Utils().close_file_delete(yaml_file)
@@ -1535,7 +1545,8 @@ class PyBase:
                             f"{key} have been updated and its new value is {new_value}.\n\n"
                         )
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1551,12 +1562,10 @@ class PyBase:
                     if Utils().split(key, data):
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to set the new value ..."
                             )
-                        obj = Utils().split(key, data)
-                        obj = new_value
-                        del (obj)
+                        data = Utils().split_update(key, new_value, data)
                     else:
                         raise KeyError(
                             f"\"{key}\" Does not exist in the file.")
@@ -1572,7 +1581,8 @@ class PyBase:
                             f"{key} have been updated and its new value is {new_value}.\n\n"
                         )
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:
@@ -1588,12 +1598,10 @@ class PyBase:
                     if Utils().split(key, data):
                         if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: {key} was found. Trying to set the new value ..."
+                            print(
+                                f"[DEBUG] {key} was found. Trying to set the new value ..."
                             )
-                        obj = Utils().split(key, data)
-                        obj = new_value
-                        del (obj)
+                        data = Utils().split_update(key, new_value, data)
                 with open(self.__DB, mode="wb") as bytes_file:
                     pickle.dump(data, bytes_file)
                     Utils().close_file_delete(bytes_file)
@@ -1606,7 +1614,8 @@ class PyBase:
                             f"{key} have been updated and its new value is {new_value}.\n\n"
                         )
             except Exception as err:
-                console.print_exception()
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
                 if Utils().logs_enabled:
                     with open(f"{Utils().current_logs()}",
                               mode="a") as log_file:

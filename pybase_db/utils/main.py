@@ -8,16 +8,12 @@ import math
 import os
 import pathlib
 import threading
+import traceback
 from time import sleep
 
 import psutil
 import toml
 import yaml
-from rich.console import Console
-from rich.traceback import install
-
-install()  # Use Rich traceback handler as the default error handler
-console = Console()
 
 
 class Utils:
@@ -386,7 +382,7 @@ class Utils:
             if close_file is None:
                 del (file)
         except Exception:
-            console.print_exception()
+            print("[ERROR]", traceback.print_exc())
 
     def split(self, key: str, data: dict):
         """
@@ -414,12 +410,17 @@ class Utils:
         args = key.split(".")
         dataObject = data
         for keys in args:
-            if keys not in dataObject.keys():
-                return False
-            elif keys == args[len(args) - 1]:
-                return dataObject[keys]
-            else:
-                dataObject = dataObject[keys]
+            if isinstance(dataObject, dict):
+                if keys not in dataObject.keys():
+                    return False
+                elif keys == args[len(args) - 1]:
+                    return dataObject[keys]
+                else:
+                    dataObject = dataObject[keys]
+            elif isinstance(dataObject, list):
+                for index in range(0, len(dataObject)):
+                    if dataObject[index] == args[len(args) - 1]:
+                        return dataObject[index]
 
     def split_delete(self, key: str, data: dict):
         """
@@ -447,12 +448,81 @@ class Utils:
         args = key.split(".")
         dataObject = data
         for keys in args:
-            if keys not in dataObject.keys():
-                return False
-            elif keys == args[len(args) - 1]:
-                del dataObject[keys]
-            else:
-                dataObject = dataObject[keys]
+            if isinstance(dataObject, dict):
+                # If dataObject[keys] = [ ... ]
+                if isinstance(dataObject[keys], list):
+                    for index in range(0, len(dataObject[keys])):
+                        if dataObject[keys][index] == args[len(args) - 1]:
+                            del dataObject[keys][index]
+                            break
+                    return dataObject
+                else:
+                    if keys not in dataObject.keys():
+                        return False
+                    elif keys == args[len(args) - 1]:
+                        del dataObject[keys]
+                    else:
+                        dataObject = dataObject[keys]
+        return dataObject
+
+    def split_update(self, key: str, new_value: str, data: dict):
+        """
+        Method for split dict from key specific and then update the key value.
+        ...
+
+        Parameters
+        ----------
+        key : str
+            The key of the dictionary
+        new_value : str
+            The new value of the key
+        data : dict
+            The content.
+
+        Raises
+        ------
+        TypeError
+            If key is not a str or data is not a dict.
+        ValueError
+            If new_value already exists in key (When working with lists).
+
+        """
+        if not isinstance(key, str):
+            raise TypeError(f"the type of {key} is invalid.")
+        elif not isinstance(data, dict):
+            raise TypeError(f'data "{data}" must be a dictionary.')
+
+        args = key.split(".")
+        dataObject = data
+        try:
+            for keys in args:
+                if isinstance(dataObject, dict):
+                    if isinstance(dataObject[keys], list):
+                        for index in range(0, len(dataObject[keys])):
+                            if new_value in dataObject[keys]:
+                                raise ValueError(
+                                    f"{new_value} already exists in {keys}")
+                            else:
+                                if dataObject[keys][index] == args[len(args) -
+                                                                   1]:
+                                    dataObject[keys][index] = new_value
+                                    return dataObject
+                    else:
+                        if keys not in dataObject.keys():
+                            return False
+                        elif keys == args[len(args) - 1]:
+                            print(f"---- {dataObject}")
+                            if new_value != keys:
+                                dataObject[new_value] = dataObject[keys]
+                                del dataObject[keys]
+                            else:
+                                return None
+                        else:
+                            dataObject = dataObject[keys]
+        except Exception:
+            print("[ERROR] Something went wrong ...")
+            traceback.print_exc()
+
         return dataObject
 
     def split_rename(self, key: str, new_name: str, data: dict):
@@ -505,7 +575,7 @@ class Utils:
         pybase_process = psutil.Process(os.getpid())
         pybase_cpu_usage = pybase_process.cpu_percent(interval=1.0)
         pybase_ram_usage = round(pybase_process.memory_percent(), 1)
-        console.log(f"""[DEBUG]: Showing PyBase Usage statistics ...
+        print(f"""[DEBUG]: Showing PyBase Usage statistics ...
          CPU Usage: {pybase_cpu_usage}%
          RAM Usage: {pybase_ram_usage}%""")
 
@@ -528,7 +598,7 @@ class Utils:
 
         if self.debug:
             sleep(0.5)
-            console.log("[DEBUG]: Searching for old log files ...")
+            print("[DEBUG]: Searching for old log files ...")
         for logs in os.listdir(os.path.abspath(self.logs_location)):
             if (datetime.datetime.utcnow() - datetime.datetime.fromtimestamp(
                     os.path.getctime(
@@ -536,11 +606,11 @@ class Utils:
                 ).seconds >= self.time_to_seconds(self.logs_life_cycle):
                 if self.debug:
                     sleep(0.5)
-                    console.log(f"[DEBUG]: Deleting old log file {logs} ...")
+                    print(f"[DEBUG]: Deleting old log file {logs} ...")
                 try:
                     os.remove(os.path.abspath(self.logs_location) + "/" + logs)
                 except Exception:
-                    console.print_exception()
+                    print("[ERROR]", traceback.print_exc())
 
     def interval(self, func, sec):
         def func_wrapper():

@@ -3,22 +3,17 @@
 # PyBase is distributed under MIT License.     #
 
 # dependencies (packages/modules)
+import datetime
 import itertools
 import os
 import pathlib
 import sqlite3
-
-# for configuration purposes
-import json
-import toml
-import yaml
-
+import traceback
+from threading import Thread
 from time import sleep
-from rich.console import Console
-from rich.traceback import install
 
-install()  # Use Rich traceback handler as the default error handler
-console = Console()
+from .utils import Utils
+from .version import __version__
 
 
 class PySQL:
@@ -36,12 +31,14 @@ class PySQL:
         Delete a table or a element from a column (if it was declared) from the database established in PySQL init.
     create(objects: dict)
         Create a table with columns inside the database established in PySQL init.
+    insert(table: str, objects: dict)
+        Insert objects into the columns of the given table
     get(table: str, objects: dict = None)
         Get data from the database.
     """
     def __init__(self,
                  database: str = None,
-                 db_path: str = pathlib.Path().absolute()):
+                 db_path: str = str(pathlib.Path().absolute()) + '/db'):
         """
         Define the SQLite3 database to use and create it if it doesn't exist.
 
@@ -53,7 +50,7 @@ class PySQL:
             The name of the database without extension.
             Note: If you don't put a name for the db, it will be created directly in memory without consuming disk.
         db_path : str, optional
-            The path where the database is located (default is current working directory).
+            The path where the database is located (default is dir called db in the current working directory).
             Example: /home/bloodbath/Desktop/PyBase
             Note: If the name of a db isn't specified in the db parameter, this path will not be used.
 
@@ -66,239 +63,92 @@ class PySQL:
             If the given path wasn't found.
         """
 
-        self.__path = db_path
+        self._path = db_path
 
         # Search for config file
-        for files in os.listdir(pathlib.Path().absolute()):
-            if files == "pybase.json":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = json.load(config_file)
+        Utils().search_config()
 
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError(
-                                    'debug must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError(
-                                    'stats must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError(
-                                'debug must be inside the debugging key in the config file.'
-                            )
-                        elif "stats" in config:
-                            raise KeyError(
-                                'stats must be inside the debugging key in the config file.'
-                            )
+        # Search for old logs files and delete them
+        if Utils().logs_enabled:
 
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError(
-                                    'enabled must be a Boolean in the logs key inside config file.'
-                                )
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"][
-                                    "location"]
-                            else:
-                                raise KeyError(
-                                    'location must be a String in the logs key inside the config file.'
-                                )
-                        else:
-                            self.__logs_location = pathlib.Path().absolute(
-                            ) + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError(
-                                'enabled must be inside the logs key in the config file.'
-                            )
-                        elif "location" in config:
-                            raise KeyError(
-                                'location must be inside the logs key in the config file.'
-                            )
-            elif files == "pybase.yaml" or "pybase.yml":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = yaml.safe_load(config_file)
+            def search_old_logs():
+                Utils().delete_old_logs()
+                sleep(Utils().time_to_seconds(Utils().logs_life_cycle))
 
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError(
-                                    'debug must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError(
-                                    'stats must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError(
-                                'debug must be inside the debugging key in the config file.'
-                            )
-                        elif "stats" in config:
-                            raise KeyError(
-                                'stats must be inside the debugging key in the config file.'
-                            )
-
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError(
-                                    'enabled must be a Boolean in the logs key inside config file.'
-                                )
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"][
-                                    "location"]
-                            else:
-                                raise KeyError(
-                                    'location must be a String in the logs key inside the config file.'
-                                )
-                        else:
-                            self.__logs_location = pathlib.Path().absolute(
-                            ) + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError(
-                                'enabled must be inside the logs key in the config file.'
-                            )
-                        elif "location" in config:
-                            raise KeyError(
-                                'location must be inside the logs key in the config file.'
-                            )
-            elif files == "pybase.toml":
-                with open(files, encoding="utf-8", mode="r") as config_file:
-                    config = toml.load(config_file)
-
-                    if "debugging" in config:
-                        if "debug" in config["debugging"]:
-                            if isinstance(config["debugging"]["debug"], bool):
-                                self.__debug = config["debugging"]["debug"]
-                            else:
-                                raise TypeError(
-                                    'debug must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__debug = False
-                        if "stats" in config["debugging"]:
-                            if isinstance(config["debugging"]["stats"], bool):
-                                self.__stats = config["debugging"]["stats"]
-                            else:
-                                raise TypeError(
-                                    'stats must be a Boolean in the debugging key inside config file.'
-                                )
-                        else:
-                            self.__stats = False
-                    else:
-                        if "debug" in config:
-                            raise KeyError(
-                                'debug must be inside the debugging key in the config file.'
-                            )
-                        elif "stats" in config:
-                            raise KeyError(
-                                'stats must be inside the debugging key in the config file.'
-                            )
-
-                    if "logs" in config:
-                        if "enabled" in config["logs"]:
-                            if isinstance(config["logs"]["enabled"], bool):
-                                self.__logs_enabled = config["logs"]["enabled"]
-                            else:
-                                raise KeyError(
-                                    'enabled must be a Boolean in the logs key inside config file.'
-                                )
-                        else:
-                            self.__logs_enabled = False
-                        if "location" in config["logs"]:
-                            if isinstance(config["logs"]["location"], str):
-                                self.__logs_location = config["logs"][
-                                    "location"]
-                            else:
-                                raise KeyError(
-                                    'location must be a String in the logs key inside the config file.'
-                                )
-                        else:
-                            self.__logs_location = pathlib.Path().absolute(
-                            ) + "/tmp"
-                    else:
-                        if "enabled" in config:
-                            raise KeyError(
-                                'enabled must be inside the logs key in the config file.'
-                            )
-                        elif "location" in config:
-                            raise KeyError(
-                                'location must be inside the logs key in the config file.'
-                            )
+            delete_old_logs = Thread(target=search_old_logs)
+            delete_old_logs.daemon = True
+            delete_old_logs.start()
 
         # If database isn't equal to None or isn't a String, then raise TypeError.
-        if type(database) != str and database is None:
+        if not isinstance(database, str) and database is None:
             raise TypeError('database must be a String.')
         elif os.path.exists(db_path) is True:
             raise FileNotFoundError(
-                f'The path ({self.__path}) wasn\'t found. Please check that the path exists.'
+                f'The path ({self._path}) wasn\'t found. Please check that the path exists.'
             )
         else:
+            if Utils().debug:
+                print(f"[DEBUG] Using PyBase v{__version__}")
+
             if database is None:
                 try:
-                    self.__conn = sqlite3.connect(':memory:')
-                    self.__cursor = self.__conn.cursor()
-                    if self.__debug:
-                        console.log(
-                            '[DEBUG]: Using a database stored in memory.')
+                    self._conn = sqlite3.connect(':memory:')
+                    self._cursor = self._conn.cursor()
+                    if Utils().debug:
+                        print('[DEBUG] Using a database stored in memory.')
                         sleep(1)
-                except Exception:
-                    console.print_exception()
+                except Exception as err:
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}",
+                                  mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n" +
+                                f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
             else:
-                self.__DB = (f'{self.__path}/{database}.db')
+                self._DB = (f'{self._path}/{database}.db')
                 try:
-                    self.__conn = sqlite3.connect(self.__DB)
-                    self.__cursor = self.__conn.cursor()
-                    if self.__debug:
-                        console.log(
-                            f'[DEBUG]: using a database stored in disk ({self.__DB}).'
+                    self._conn = sqlite3.connect(self._DB)
+                    self._cursor = self._conn.cursor()
+                    if Utils().debug:
+                        print(
+                            f'[DEBUG] using a database stored in disk ({self._DB}).'
                         )
                         sleep(1)
-                except Exception:
-                    console.print_exception()
-            if self.__debug is True:
-                console.log(
-                    f'[DEBUG]: Using SQLite3 version v{sqlite3.version}')
+                except Exception as err:
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}",
+                                  mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n" +
+                                f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
+
+            if Utils().debug:
+                print(f'[DEBUG] Using SQLite3 version v{sqlite3.version}')
                 sleep(1)
-        if self.__stats:
+        if Utils().stats_enabled:
             try:
-                self.__interval(self.__send_stats, 120)
-            except Exception:
-                console.print_exception()
+                Utils().interval(
+                    Utils().send_stats,
+                    Utils().time_to_seconds(Utils().stats_interval))
+            except Exception as err:
+                print("[ERROR] Something went wrong ...")
+                traceback.print_exc()
+                if Utils().logs_enabled:
+                    with open(f"{Utils().current_logs()}",
+                              mode="a") as log_file:
+                        log_file.write(
+                            f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                            + "========================\n" +
+                            f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                        )
 
     def delete(self, table: str, objects: dict = None):
         """
@@ -331,27 +181,27 @@ class PySQL:
             If the given table doesn't have the given column.
         """
 
-        if type(table) != str:
+        if not isinstance(table, str):
             # If a table isn't a String or isn't declared or is equal to None, then raise ValueError.
             raise ValueError('table must be a String.')
         elif objects is None or len(objects) == 0:
             # If a element isn't declared, then delete the entire table.
             # Search if the given table exists inside the database.
-            self.__cursor.execute(
+            self._cursor.execute(
                 f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"""
             )
-            rows = self.__cursor.fetchone()
+            rows = self._cursor.fetchone()
             if rows is None:
                 raise KeyError("The given table doesn't exists.")
             else:
-                self.__cursor.execute(f"""DROP TABLE {table}""")
-                if self.__debug:
+                self._cursor.execute(f"""DROP TABLE {table}""")
+                if Utils().debug:
                     sleep(0.5)
-                    console.log(f"[DEBUG]: Deleting the table {table}...")
+                    print(f"[DEBUG] Deleting the table {table}...")
                     sleep(1.5)
-                self.__conn.commit()
+                self._conn.commit()
                 sleep(0.5)
-                console.log(f"[LOG]: The table {table} has been deleted.")
+                print(f"[LOG]: The table {table} has been deleted.")
         else:
             # If there's no value key in objects, then raise error.
             if "value" not in objects:
@@ -359,32 +209,41 @@ class PySQL:
             else:
                 # If a element is declared, then delete it from the table.
                 # Search the given element in the given column and if it doesn't exists, raise error
-                self.__cursor.execute(
+                self._cursor.execute(
                     f"""SELECT {objects['column']} FROM {table} WHERE {objects['column']} = '{objects['value']}'"""
                 )
-                rows = self.__cursor.fetchall()
+                rows = self._cursor.fetchall()
                 if len(rows) == 0:
                     raise ValueError(
                         "The given element doesn't exists in the given column."
                     )
                 else:
                     try:
-                        self.__cursor.execute(
+                        self._cursor.execute(
                             f"""DELETE FROM {table} WHERE {objects['column']} = '{objects['value']}'"""
                         )
-                        if self.__debug:
+                        if Utils().debug:
                             sleep(0.5)
-                            console.log(
-                                f"[DEBUG]: Deleting the value {objects['value']} from the column {objects['column']} in table {table}..."
+                            print(
+                                f"[DEBUG] Deleting the value {objects['value']} from the column {objects['column']} in table {table}..."
                             )
                             sleep(1)
-                        self.__conn.commit()
+                        self._conn.commit()
                         sleep(0.5)
-                        console.log(
+                        print(
                             f"[LOG]: The element {objects['value']} has been deleted from {objects['column']} in {table}."
                         )
-                    except sqlite3.OperationalError:
-                        console.print_exception()
+                    except sqlite3.OperationalError as err:
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}",
+                                      mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n" +
+                                    f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
 
     def create(self, objects: dict):
         """
@@ -418,26 +277,27 @@ class PySQL:
             If columns key type isn't text or integer.
         KeyError
             If objects doesn't have a key called name or columns.
-            If columns keys doesn't have type/value.
+            If columns keys doesn't have type.
         """
 
-        each_column = [
-        ]  # Collect each column name and save them inside a list.
-        each_type = []  # Collect each column type and save them inside a list.
-        each_value = [
-        ]  # Collect each column value and save them inside a list.
+        # Collect each column name and save them inside a list.
+        each_column = []
+        # Collect each column type and save them inside a list.
+        each_type = []
+        # Collect each column value and save them inside a list.
+        each_value = []
 
         # If objects isn't a dict or is equal to zero
-        if type(objects) != dict or len(objects) == 0:
+        if not isinstance(objects, dict) or len(objects) == 0:
             raise ValueError('objects must be a dict and cannot be empty.')
-        elif "name" in objects["table"] is False:
+        elif "name" not in objects["table"]:
             raise KeyError(
                 'object dict must have a name key inside the table key.')
         # If table name value isn't a String.
-        elif isinstance(objects["table"]["name"], str) is False:
+        elif not isinstance(objects["table"]["name"], str):
             raise ValueError('table name must be a String.')
         # If table doesn't have a columns key.
-        elif "columns" in objects["table"] is False:
+        elif "columns" not in objects["table"]:
             raise KeyError(
                 'object dict must have a columns key inside the table key.')
         else:
@@ -464,10 +324,10 @@ class PySQL:
                         each_type.append(columns[column]["type"])
                         each_value.append(columns[column]["value"])
                 # Check if table doesn't exists.
-                self.__cursor.execute(
+                self._cursor.execute(
                     f"""SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{objects['table']['name']}'"""
                 )
-                if not self.__cursor.fetchone()[0] == 1:
+                if not self._cursor.fetchone()[0] == 1:
 
                     try:
                         # Initializing the table creation.
@@ -476,20 +336,29 @@ class PySQL:
                             create_table += f"""    {'{} {},'.format(each_column[c], each_type[c]) if (c + 1) != len(each_column) else '{} {}'.format(each_column[c], each_type[c])}\n"""
                         create_table += """);"""
 
-                        if self.__debug:
-                            console.log(
-                                f"[DEBUG]: Creating table {objects['table']['name']}..."
+                        if Utils().debug:
+                            print(
+                                f"[DEBUG] Creating table {objects['table']['name']}..."
                             )
                             sleep(0.5)
-                            console.log("[DEBUG]:", create_table)
+                            print("[DEBUG]", create_table)
                             sleep(1.5)
-                        self.__cursor.execute(create_table)
+                        self._cursor.execute(create_table)
                         sleep(0.5)
-                        console.log(
+                        print(
                             f"[LOG]: The table {objects['table']['name']} has been created successfully."
                         )
-                    except Exception:
-                        console.print_exception()
+                    except Exception as err:
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}",
+                                      mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n" +
+                                    f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
 
                 # Initializing the insertion
                 try:
@@ -505,22 +374,22 @@ class PySQL:
                         insert_data += f"""{ " AND " if (c + 1) != len(each_column) else ''}"""
                     insert_data += """);"""
 
-                    self.__cursor.execute(insert_data)
-                    self.__conn.commit()
+                    self._cursor.execute(insert_data)
+                    self._conn.commit()
 
-                    if self.__debug:
+                    if Utils().debug:
                         if any(
                                 isinstance(value, list)
                                 for value in each_value):
-                            console.log(
-                                "[DEBUG]: Inserting the data only with the first arrays value..."
+                            print(
+                                "[DEBUG] Inserting the data only with the first arrays value..."
                             )
-                            console.log("[DEBUG]:", insert_data)
+                            print("[DEBUG]", insert_data)
                         else:
-                            console.log(
-                                f"[DEBUG]: Inserting the data inside the table {objects['table']['name']}..."
+                            print(
+                                f"[DEBUG] Inserting the data inside the table {objects['table']['name']}..."
                             )
-                            console.log("[DEBUG]:", insert_data)
+                            print("[DEBUG]", insert_data)
 
                     # Insert the rest of the array data inside the column
                     self.columns = []
@@ -560,7 +429,7 @@ class PySQL:
                         insert_data += """) SELECT """
                         for i in range(len(self.values[row])):
                             insert_data += f"""'{"{}".format(self.values[row][i])}'""" + f"""{", " if (i + 1) != len(self.values[row]) else " "}"""
-                        console.log(self.values[row])
+                        print(self.values[row])
                         insert_data += f"""WHERE NOT EXISTS (SELECT 1 FROM {objects['table']['name']} WHERE """
                         for c, i in itertools.zip_longest(
                                 range(len(self.columns)),
@@ -572,26 +441,35 @@ class PySQL:
                         row += 1
                         values_length += 1
 
-                    self.__cursor.executescript(insert_data)
-                    self.__conn.commit()
+                    self._cursor.executescript(insert_data)
+                    self._conn.commit()
 
-                    if self.__debug:
+                    if Utils().debug:
                         if any(
                                 isinstance(value, list)
                                 for value in each_value):
-                            console.log(
-                                f"[DEBUG]: Inserting the rest of the data arrays values inside the table {objects['table']['name']}..."
+                            print(
+                                f"[DEBUG] Inserting the rest of the data arrays values inside the table {objects['table']['name']}..."
                             )
                             sleep(0.5)
-                            console.log("[DEBUG]:", insert_data)
+                            print("[DEBUG]", insert_data)
                             sleep(1)
 
                     sleep(0.5)
-                    console.log(
+                    print(
                         f"[LOG]: The data has been inserted successfully inside the table {objects['table']['name']}."
                     )
-                except Exception:
-                    console.print_exception()
+                except Exception as err:
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}",
+                                  mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n" +
+                                f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
 
     def get(self, table: str, objects: dict = None):
         """
@@ -627,97 +505,100 @@ class PySQL:
             A list with tuples that returns all the found values.
         """
 
-        if type(table) != str:
+        if not isinstance(table, str):
             raise ValueError('table must be a String.')
-        elif isinstance(objects, dict) is False:
+        if not isinstance(objects, dict):
             raise ValueError('objects must be a dict.')
         else:
             if "column" not in objects:
                 try:
                     # Get all the table
-                    self.__cursor.execute(f"""SELECT * FROM {table}""")
-                    rows = self.__cursor.fetchall()
-                except sqlite3.OperationalError:
-                    console.print_exception()
+                    self._cursor.execute(f"""SELECT * FROM {table}""")
+                    rows = self._cursor.fetchall()
+                except sqlite3.OperationalError as err:
+                    print("[ERROR] Something went wrong ...")
+                    traceback.print_exc()
+                    if Utils().logs_enabled:
+                        with open(f"{Utils().current_logs()}",
+                                  mode="a") as log_file:
+                            log_file.write(
+                                f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                + "========================\n" +
+                                f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                            )
 
-                if self.__debug:
+                if Utils().debug:
                     sleep(0.5)
-                    console.log(f"[DEBUG]: Getting the table {table}...")
+                    print(f"[DEBUG] Getting the table {table}...")
                     sleep(0.5)
-                    console.log(
-                        f"[DEBUG]: The table {table} was obtained successfully and saved in rows attribute."
+                    print(
+                        f"[DEBUG] The table {table} was obtained successfully and saved in rows attribute."
                     )
                     sleep(0.5)
-                    console.log("[DEBUG]:", rows)
+                    print("[DEBUG]", rows)
 
                 return rows
             else:
                 if "value" not in objects:
                     try:
                         # Get all the column
-                        self.__cursor.execute(
+                        self._cursor.execute(
                             f"""SELECT {objects['column']} FROM {table}""")
-                        rows = self.__cursor.fetchall()
-                    except sqlite3.OperationalError:
-                        console.print_exception()
+                        rows = self._cursor.fetchall()
+                    except sqlite3.OperationalError as err:
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}",
+                                      mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n" +
+                                    f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
 
-                    if self.__debug:
+                    if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Getting the column {objects['column']} from {table} table..."
+                        print(
+                            f"[DEBUG] Getting the column {objects['column']} from {table} table..."
                         )
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: The column {objects['column']} was obtained successfully and saved in rows attribute."
+                        print(
+                            f"[DEBUG] The column {objects['column']} was obtained successfully and saved in rows attribute."
                         )
                         sleep(0.5)
-                        console.log("[DEBUG]:", rows)
+                        print("[DEBUG]", rows)
 
                     return rows
                 else:
                     try:
                         # Get the value in the column
-                        self.__cursor.execute(
+                        self._cursor.execute(
                             f"""SELECT {objects['column']} FROM {table} WHERE {objects['column']} = '{objects['value']}'"""
                         )
-                        rows = self.__cursor.fetchone()[0]
-                    except sqlite3.OperationalError:
-                        console.print_exception()
+                        rows = self._cursor.fetchone()[0]
+                    except sqlite3.OperationalError as err:
+                        print("[ERROR] Something went wrong ...")
+                        traceback.print_exc()
+                        if Utils().logs_enabled:
+                            with open(f"{Utils().current_logs()}",
+                                      mode="a") as log_file:
+                                log_file.write(
+                                    f"\033[1m{datetime.datetime.utcnow().strftime('%c')}\033[0m\n"
+                                    + "========================\n" +
+                                    f"\033[0;31mAn error has occurred.\n{err}\033[0m\n\n"
+                                )
 
-                    if self.__debug:
+                    if Utils().debug:
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: Getting the value {objects['value']} from column {objects['column']} in {table} table..."
+                        print(
+                            f"[DEBUG] Getting the value {objects['value']} from column {objects['column']} in {table} table..."
                         )
                         sleep(0.5)
-                        console.log(
-                            f"[DEBUG]: The value {objects['value']} was obtained successfully and saved in rows attribute."
+                        print(
+                            f"[DEBUG] The value {objects['value']} was obtained successfully and saved in rows attribute."
                         )
                         sleep(0.5)
-                        console.log("[DEBUG]:", rows)
+                        print("[DEBUG]", rows)
 
                     return rows
-
-    # ---------- Internal methods ----------
-    def __send_stats(self):
-        """
-        Method to send statistics of usage.
-        """
-
-        pybase_process = psutil.Process(os.getpid())  # Get PyBase process ID
-        pybase_cpu_usage = pybase_process.cpu_percent(
-            interval=1.0)  # CPU Usage in percentage
-        pybase_ram_usage = round(pybase_process.memory_percent(),
-                                 1)  # Memory usage in percentage
-        console.log(f"""[DEBUG]: Showing PyBase (PySQL) Usage statistics ...
-         CPU Usage: {pybase_cpu_usage}%
-         RAM Usage: {pybase_ram_usage}%""")
-
-    def __interval(self, func, sec):
-        def func_wrapper():
-            self.__interval(func, sec)
-            func()
-
-        t = threading.Timer(sec, func_wrapper)
-        t.start()
-        return t
