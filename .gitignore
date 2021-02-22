@@ -12,6 +12,6 @@ docs/
 # Benchmark json files
 **/*.json
 
-# Execution files (databases, tmp files)
+# Execution time files (databases, tmp files)
 **/tmp/
 **/db/
