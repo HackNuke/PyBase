@@ -1,0 +1,4 @@
+# We highly recommend to you to put your token inside an env file instead,
+# That's just for example.
+token: "your_super-bot.secret_T0ken"
+prefix: "$"

@@ -1,0 +1,11 @@
+debugging:
+  enabled: true # Default: false
+  stats:
+    enabled: false # Default: false
+    interval: "2m" # Default: 2m
+
+logs:
+  enabled: true # Default: true
+  location: "./tmp" # Default: ROOT_DIR/tmp -> ./tmp
+  life_cycle: "7d" # Default: 7d
+  # life_cycle can be: w -> week(s), d -> day(s), h -> hour(s), m -> minute(s)

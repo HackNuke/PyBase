@@ -46,7 +46,8 @@ pybase_update = {"pybase": {"newVersion": {"version": "1.0.0"}}}
 db.insert(pybase_update)
 
 # Get all data from db
-db.get()  # => {'pybase': {'newVersion': {'version': '1.0.0'}}, 'version': '1.0.0'}
+db.get(
+)  # => {'pybase': {'newVersion': {'version': '1.0.0'}}, 'version': '1.0.0'}
 
 # Get the values using its key
 db.get("pybase")  # => {'newVersion': {'version': '1.0.0'}}
