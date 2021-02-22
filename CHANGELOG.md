@@ -1,12 +1,14 @@
 # Changelog
+
 This is a detailed and complete changelog of the different versions of PyBase.
-> Notes: 
-> 
+
+> Notes:
+>
 > 1. **This changelog contains the changes from version 0.4.0 onwards.**
-> 
+>
 > 2. Version changelogs contain all unified changes from all development versions.
 
-------
+---
 
 - v1.0.0
   - Breaking changes:
@@ -20,26 +22,28 @@ This is a detailed and complete changelog of the different versions of PyBase.
       - `fetch` and `delete` methods have been changed to be simpler and more dev-friendly!
   - Another changes under the hood and bug fixes:
     - Global:
-      - Some methods were optimized in both modules.
+      - Deleted `rich` dependency to make the lib more lightweight.
+      - Code optimized in both modules.
       - Dependencies have been updated and now they are managed by dependa-bot so they are always up to date!
       - Added `psutil` to dependencies.
+      - Now the default path for the database is CurrentWorkingDir/db
     - PyBase Class:
       - Added full support for TOML files.
       - Added `push` method. Push a item into a list inside your database without having a headache!
       - Added `rename` method. Did you make a mistake in a character in the name of a key? Don't worry, you no longer have to manually open your database to fix it!
-      - Added `update` method. Update the values of your keys inside the database.
+      - Added `update` method. Update the values of your keys inside the database, can also work for update a list value!
       - Now the init doesn't raise errors when the specified path doesn't exists. Instead, it tries to create the path.
       - Now the `insert` method have a parameter called `mode`. Now when inserting data to an existing key the old data will not be overwritten!
 
 > **Notes about v1.0.0**:
->  
+>
 > 1. Since version 1.0.0 is under development, it isn't ready
-> yet and therefore this changelog notes may change and if there's
-> no release yet with the newest changes, you'll have to compile it yourself.
-> See [Building](https://github.com/PyBase/PyBase#building).
-> 
+>    yet and therefore this changelog notes may change and if there's
+>    no release yet with the newest changes, you'll have to compile it yourself.
+>    See [Building](https://github.com/PyBase/PyBase#building).
+>
 > 2. Statistics are currently sent every two minutes by default. You can change the time in the config file.
-> 
+>
 > 3. Logs files are currently deleted after 7 days by default. You can change the life cycle in the config file.
 
 ---

@@ -1,4 +1,4 @@
-![PyBase](https://socialify.git.ci/PyBase/PyBase/image?description=1&descriptionEditable=Python%20DataBase%20Manager%20for%20multiple%20filetypes%20including%20SQLite3.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&pattern=Circuit%20Board&stargazers=1&theme=Light)
+![PyBase](https://socialify.git.ci/PyBase/PyBase/image?description=1&descriptionEditable=Python%20Manager%20for%20NoSQL%20and%20SQLite3%20databases.&font=Inter&forks=1&issues=1&logo=https%3A%2F%2Fiili.io%2FFEHkLg.png&pattern=Circuit%20Board&stargazers=1&theme=Light)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6a03656b-b3f4-4a90-a52d-9f8d176d6a28/deploy-status)](https://app.netlify.com/sites/pybase/deploys)
 ![Python Versions](https://img.shields.io/pypi/pyversions/pybase-db)
@@ -7,30 +7,41 @@
 [![Discord](https://img.shields.io/discord/779841556215627776?color=008aff&label=support&logo=discord&style=flat-square)](https://discord.gg/4BC8RqYxGc)
 ![License](https://img.shields.io/pypi/l/pybase-db)
 
-PyBase is a DataBase Manager for multiple filetypes including SQLite3.
+PyBase is a DataBase Manager for NoSQL and SQLite3.
 
 It's focused on the ease and effectiveness for the administration of databases.
 
-------
+---
 
 ## Why PyBase?
-**If you want to store static data** (JSON, YAML, TOML, Bytes) **or store a database in SQLite3**,
+
+If you want to store static data (NoSQL) or store a database in SQLite3,
 **the best thing would be to use an administrator that simplifies your tasks and
 helps you with a good organization and efficiently.**
 
 **PyBase does exactly that, allows you to create such databases with
 just one method, and simplifies the task of manipulating their data!**
 
-------
+---
 
 ## Contribuitors
-- [Danny2105](https://github.com/Danny2105)
 
-------
+<a href="https://github.com/PyBase/PyBase/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=PyBase/PyBase" />
+</a>
+
+Made with [contributors-img](https://contrib.rocks).
+
+---
 
 # Quick start
+
 ## Installation
-PyBase requires Python 3.x and can be installed through `pip` with the following command.
+
+PyBase requires Python 3.6 onwards and can be installed through `pip` with the following command.
+
+> Note: If you plan to install pybase system-wide instead of current user make sure you have admin permissions.
+
 ```sh
 # Stable version
 python3 -m pip install -U pybase_db
@@ -42,22 +53,28 @@ python3 -m pip install -U --pre pybase_db
 # Available branches:
 #   • master (recommended)
 #   • development (unstable releases)
-# NOTE: this installation mode will not install PyBase dependencies!
+# NOTE: this installation mode will not install PyBase external dependencies!
 python3 -m pip install -U git+https://github.com/PyBase/PyBase@branch
 ```
 
 ### Building
+
 The development branch changes aren't compiled and uploaded to Pypi every time,
 so you must compile a wheel yourself to test the experimental stuff if the newest
 changes aren't uploaded to Pypi.
-```sh
-python3 setup.py bdist_wheel
 
-python3 -m pip install -U dist/pybase_db-version-py3-none-any.whl
+```sh
+# Without make
+python3 setup.py install
+
+# Write less, do more!
+make install
 ```
 
 ## Usage example
+
 This is a brief example of the methods that PyBase currently has.
+
 ```py
 # Lets import PyBase Class from PyBase Package
 from pybase_db import PyBase
@@ -116,46 +133,33 @@ db.get("pybase.newVersion")  # => {'version': '1.0.0'}
 db.get("pybase.newVersion.version")  # => 1.0.0
 ```
 
-> **To see SQLite3 usage example, click [here](./examples/pysql_usage.py)**
+> **You can see more examples [here](./examples)**
 
 ## Benchmark
+
 PyBase is made to be fast, and what better proof than a benchmarking test?
-> Note: you can see the code used for the test in [tests](./tests/benchmark.py)
 
-```
-creating        took 0.002 seconds to complete its execution.
-
-insert_1        took 0.004 seconds to complete its execution.
-
-insert_2        took 0.004 seconds to complete its execution.
-
-deleting        took 0.008 seconds to complete its execution.
-
-fetching        took 0.003 seconds to complete its execution.
-
-getting_one     took 0.003 seconds to complete its execution.
-
-getting_all     took 0.003 seconds to complete its execution.
-
-pushing_1       took 0.005 seconds to complete its execution.
-
-updating        took 0.004 seconds to complete its execution.
-```
+You can see the code used for the test and the results in [benchmark](./tests/benchmark/README.md#results).
 
 ## Documentation
+
 You can see the PyBase documentation through the `help()` function of the REPL
 and through the [official documentation site](https://pybase.netlify.app/docs/).
 
 ## Changelog
+
 You can see the PyBase changelog [here](./CHANGELOG.md)
 
-------
+---
 
 # License
-**PyBase is distributed under MIT License.**
+
+**PyBase is distributed under [MIT License](./LICENSE).**
 
 # Contributing
+
 You can see how to contribute [here](./CONTRIBUTING.md)
 
 # Code of Conduct
+
 You can see the code of conduct [here](./CODE_OF_CONDUCT.md)
