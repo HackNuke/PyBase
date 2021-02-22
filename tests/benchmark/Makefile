@@ -20,10 +20,10 @@ help: ## Shows this help message.
 benchmark: ## Run benchmark tests (REQUIRES PYTEST-BENCHMARK)
 	@printf "Cleaning old benchmark test files and residual data if they exists ...\n"
 	if [ -d $(OLD_BENCHS_DIR) ]; then \
-		rm -r $(OLD_BENCHS_DIR) db tmp __pycache__ ; \
+		rm -r db tmp __pycache__ ; \
 	fi
 	@printf "Running benchmark test ...\n"
-	py.test --benchmark-min-time=0.1 test_benchmark.py
+	py.test --benchmark-min-time=0.1 --benchmark-autosave test_benchmark.py
 
 .PHONY: benchmark
 .SILENT: help
