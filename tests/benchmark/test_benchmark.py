@@ -2,6 +2,7 @@
 # Latest benchmark: v1.0.0.dev5
 
 import time
+
 import pytest
 
 from pybase_db.pybase_db import PyBase
